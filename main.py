@@ -141,7 +141,7 @@ def report_statistics(module_list):
                     ('gcc', '--version'), ('g++', '--version'), ('gfortran', '--version'),
                     ('icc', '--version'), ('icpc', '--version'), ('ifort', '--version'),
                     ('clang', '--version'), ('clang++', '--version'), ('flang', '--version'),
-                    ('python', '--version'), ('python3', '--version')]
+                    ('python', '--version'), ('python2', '--version'), ('python3', '--version')]
     list_of_mpi_vendors = ['Intel', 'Open MPI']
 
     # Load modules
