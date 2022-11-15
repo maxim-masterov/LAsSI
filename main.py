@@ -105,22 +105,70 @@ def dump_to_file(filename, text):
     file.close()
 
 
-def report_statistics():
-    list_of_apps = [('ls', '-l'), ('pwd', ''), ('mpirun', '--version'),
-                    ('python', '--version'), ('python3', '--version')]
+def load_modules(module_list):
+    # Load modules
+    if len(module_list) > 0:
+        if is_available('module'):
+            subprocess.run(['module', 'purge'])
+            for module in module_list:
+                subprocess.run(['module', 'load', module])
 
+        else:
+            print_err_info('A module list was specified but there is '
+                           'no \'module\' command available')
+
+
+def execute_app(app_name, app_keys):
+    """
+    Execute application with provided keys
+    :param app_name: Name of the application
+    :param app_keys: String of keys
+    :return: Stdout after execution
+    """
+    result = subprocess.run([app_name, app_keys], stdout=subprocess.PIPE,
+                            stderr=subprocess.DEVNULL)
+    return result.stdout.decode('utf-8')
+
+
+def report_statistics(module_list):
+    """
+    Report information about the system, compilers and libraries
+    :param module_list: List of modules to be loaded
+    :return: None
+    """
+    list_of_apps = [('uname', '-o'), ('uname', '-r'), ('uname', '-m'),
+                    ('module', '--version'), ('mpirun', '--version'),
+                    ('gcc', '--version'), ('g++', '--version'), ('gfortran', '--version'),
+                    ('icc', '--version'), ('icpc', '--version'), ('ifort', '--version'),
+                    ('clang', '--version'), ('clang++', '--version'), ('flang', '--version'),
+                    ('python', '--version'), ('python3', '--version')]
     list_of_mpi_vendors = ['Intel', 'Open MPI']
+
+    # Load modules
+    load_modules(module_list)
+
+    # Check list of apps
     for app, keys in list_of_apps:
         if is_available(app):
-            print(app + ': found')
-            result = subprocess.run([app, keys], stdout=subprocess.PIPE,
-                                    stderr=subprocess.DEVNULL)
-            output = result.stdout.decode('utf-8')
-            if app == 'mpirun':
-                for vendor in list_of_mpi_vendors:
-                    if vendor in output:
-                        print(app + ' vendor: ' + vendor)
-            print_version(app, output)
+            if app == 'uname':
+                output = execute_app(app, keys)
+                output = output.strip()  # remove leading and trailing spaces
+                info_type = 'none'
+                if keys == '-o':
+                    info_type = 'system'
+                elif keys == '-r':
+                    info_type = 'kernel version'
+                elif keys == '-m':
+                    info_type = 'machine'
+                print(info_type + ': ' + output)
+            else:
+                print(app + ': found')
+                output = execute_app(app, keys)
+                if app == 'mpirun':
+                    for vendor in list_of_mpi_vendors:
+                        if vendor in output:
+                            print(app + ' vendor: ' + vendor)
+                print_version(app, output)
         else:
             print(app + ': not found')
 
@@ -174,13 +222,13 @@ def generate_batch_file(filename, module_list, exe_name, exe_options='', nodes=1
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print('\n--- start test')
-
-    print('\n--- report statistics')
-    report_statistics()
-
-    print('\n--- generate batch script')
     batch_script_name = 'test.sh'
     # note, the module environment should always be at the first place
     modules = ['2022', 'foss/2022a']
+    print('\n--- start test')
+
+    print('\n--- report statistics')
+    report_statistics(modules)
+
+    print('\n--- generate batch script')
     generate_batch_file('test.sh', modules, 'run.exe', '-x 100')
