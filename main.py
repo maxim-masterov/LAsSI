@@ -2,6 +2,9 @@ import os
 import subprocess
 from shutil import which
 import re
+import json
+
+from batch_data import BatchData
 
 MAJOR_VERSION = '0'
 MINOR_VERSION = '0'
@@ -93,7 +96,7 @@ def print_version(app, text):
     print(app + ' version: ' + get_version_from_text(text))
 
 
-def dump_to_file(filename, text):
+def dump_text_to_file(filename, text):
     """
     Dump text to file
     :param filename: File name
@@ -118,15 +121,16 @@ def load_modules(module_list):
                            'no \'module\' command available')
 
 
-def execute_app(app_name, app_keys):
+def execute_app(app_name, app_keys, stderr=subprocess.DEVNULL):
     """
     Execute application with provided keys
     :param app_name: Name of the application
     :param app_keys: String of keys
+    :param stderr: Redirect stderr to a specific stream
     :return: Stdout after execution
     """
     result = subprocess.run([app_name, app_keys], stdout=subprocess.PIPE,
-                            stderr=subprocess.DEVNULL)
+                            stderr=stderr)
     return result.stdout.decode('utf-8')
 
 
@@ -145,7 +149,7 @@ def report_statistics(module_list):
     list_of_mpi_vendors = ['Intel', 'Open MPI']
 
     # Load modules
-    load_modules(module_list)
+    # load_modules(module_list)
 
     # Check list of apps
     for app, keys in list_of_apps:
@@ -163,7 +167,13 @@ def report_statistics(module_list):
                 print(info_type + ': ' + output)
             else:
                 print(app + ': found')
-                output = execute_app(app, keys)
+                if app == 'python2':
+                    # Python2 outputs `--version` to stderr, see 
+                    # https://bugs.python.org/issue18338. We need 
+                    # a separate treatment to handle this bug.
+                    output = execute_app(app, keys, subprocess.STDOUT)
+                else:
+                    output = execute_app(app, keys)
                 if app == 'mpirun':
                     for vendor in list_of_mpi_vendors:
                         if vendor in output:
@@ -172,15 +182,16 @@ def report_statistics(module_list):
         else:
             print(app + ': not found')
 
+    # result = subprocess.check_output('module --version', shell=True)
+    # result = subprocess.Popen(['module', '--version'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # print(result.stdout.decode('utf-8'))
+    # os.system('echo "module --version" > ' + tty_dev)
 
-def generate_batch_file(filename, module_list, exe_name, exe_options='', nodes=1, ntasks=1, cpus=1, partition='thin',
-                        time=1):
+
+def generate_batch_file(batch_data):
     """
     Generate batch script from the provided input
-    :param filename: Name of the batch script
-    :param module_list: List of modules
-    :param exe_name: Name of the executable file
-    :param exe_options: Options for the executable file
+    :param batch_data: Map of batch file data
     :param nodes: Number of nodes
     :param ntasks: Number of tasks
     :param cpus: Number of cpus
@@ -196,15 +207,22 @@ def generate_batch_file(filename, module_list, exe_name, exe_options='', nodes=1
                   '#SBATCH -n {1}\n' \
                   '#SBATCH -c {2}\n' \
                   '#SBATCH -p {3}\n' \
-                  '#SBATCH -t {4}\n'.format(nodes, ntasks, cpus,
-                                            partition, time)
+                  '#SBATCH -t {4}\n'.format(batch_data.nodes, batch_data.ntasks, 
+                                            batch_data.cpus, batch_data.partition,
+                                            batch_data.time)
 
-    file_body = '# main body is empty\n'
+    file_body = ''
+    if not batch_data.envars:
+        file_body = '# main body is empty\n'
+    else:
+        for envar, value in batch_data.envars:
+            file_body += 'export ' + envar + '=' + str(value) + '\n'
+
     file_module = 'module purge\n'
-    for module in module_list:
+    for module in batch_data.modules:
         file_module += 'module load ' + module + '\n'
 
-    file_cmd = 'srun ' + exe_name + ' ' + exe_options
+    file_cmd = batch_data.launcher + ' ' + batch_data.exec_name + ' ' + batch_data.exec_options
 
     full_text = file_shebang + '\n' \
                 + file_version + '\n' \
@@ -217,18 +235,55 @@ def generate_batch_file(filename, module_list, exe_name, exe_options='', nodes=1
     print(full_text)
     print('----------------------------------------')
 
-    # dump_to_file(filename, full_text)
+    dump_text_to_file(batch_data.batch_script_name, full_text)
+
+
+def test_omp_scalability(batch_data, thread_range):
+    """
+    Run tests with OpenMP
+    :param batch_data: Map of batch file data
+    :param thread_range: Range of threads, excluding the last number
+    """
+    for num_threads in thread_range:
+        batch_data.envars = [('OMP_NUM_THREADS', num_threads)]
+        batch_data.cpus = num_threads
+        generate_batch_file(batch_data)
+
+
+def read_config(batch_data, thread_range, config_file_name):
+    f = open(config_file_name)
+    data = json.load(f)
+    batch_data.modules = data['modules']
+    batch_data.exec_name = data['batch_data']['executable_name']
+    batch_data.exec_options = data['batch_data']['executable_options']
+    batch_data.launcher = data['batch_data']['launcher']
+
+    thread_range = range(
+        data['test_setup']['thread_range'][0],
+        data['test_setup']['thread_range'][1]
+    )
+    f.close()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    batch_script_name = 'test.sh'
     # note, the module environment should always be at the first place
-    modules = ['2022', 'foss/2022a']
+    batch = BatchData()
+    batch.batch_script_name = 'test.sh'
+    # batch.exec_name = 'run.exe'
+    # batch.exec_options = '-x 100'
+    # batch.modules = ['2022', 'foss/2022a']
+    thread_range = range(1, 3)
+
+    # Read basic configuration
+    read_config(batch, thread_range, 'config.json')
+
     print('\n--- start test')
 
     print('\n--- report statistics')
-    report_statistics(modules)
+    report_statistics(batch)
 
     print('\n--- generate batch script')
-    generate_batch_file('test.sh', modules, 'run.exe', '-x 100')
+    generate_batch_file(batch)
+
+    test_omp_scalability(batch, thread_range)

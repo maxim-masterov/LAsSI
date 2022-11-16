@@ -1,0 +1,20 @@
+{
+    "modules": [
+        "2022", "foss/2022a"
+    ],
+    "batch_data": {
+        "partition": "thin",
+        "has_gpus": false,
+        "launcher": "srun",
+        "executable_name": "a.out",
+        "executable_options": "-x 100"
+    },
+    "test_setup": {
+        "type": "omp",
+        "recompile": false,
+        "compile_command": "./make.sh",
+        "comp_flags": "",
+        "tasks_range": [1, 1],
+        "thread_range": [1, 3]
+    }
+}
