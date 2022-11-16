@@ -3,11 +3,15 @@
         "2022", "foss/2022a"
     ],
     "batch_data": {
+        "script_base_name": "test",
         "partition": "thin",
+        "nodes": 1,
+        "ntasks": 1,
+        "time": 10,
         "has_gpus": false,
         "launcher": "srun",
-        "executable_name": "a.out",
-        "executable_options": "-x 100"
+        "executable_name": "hostname",
+        "executable_options": ""
     },
     "test_setup": {
         "type": "omp",
