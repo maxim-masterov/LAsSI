@@ -10,14 +10,15 @@
         "time": 10,
         "has_gpus": false,
         "launcher": "srun",
-        "executable_name": "hostname",
-        "executable_options": ""
+        "executable_name": "dot.out",
+        "executable_options": "1000000000 seq"
     },
     "test_setup": {
         "type": "omp",
         "recompile": false,
-        "compile_command": "./make.sh",
-        "comp_flags": "",
+        "path_to_src": "examples",
+        "compile_command": "g++",
+        "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out example/dot_test.cpp",
         "tasks_range": [1, 1],
         "thread_range": [1, 3]
     }

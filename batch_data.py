@@ -19,7 +19,6 @@ class BatchFileData:
     def read_config(self, thread_range, config_file_name):
         """
         Read JSON config file
-        :param batch_data: Object of batch file data
         :param thread_range: Range of threads count
         :param config_file_name: Name of the config file
         """
@@ -54,7 +53,7 @@ class BatchFileData:
         file.close()
 
 
-    def generate_batch_file(self, name_postfix=''):
+    def generate_batch_file(self, src, name_postfix=''):
         """
         Generate batch script from the provided input
         :return: Name of the batch file
@@ -71,12 +70,15 @@ class BatchFileData:
                                               self.cpus, self.partition,
                                               self.time)
 
-        file_body = ''
+        file_envars = ''
         if not self.envars:
-            file_body = '# main body is empty\n'
+            file_envars = '# main body is empty\n'
         else:
             for envar, value in self.envars:
-                file_body += 'export ' + envar + '=' + str(value) + '\n'
+                file_envars += 'export ' + envar + '=' + str(value) + '\n'
+
+        # Compile the code
+        file_body = src.get_compile_cmd() + '\n'
 
         # 1) check if self.exec_name can be found in the current folder
         # 2) copy self.exec_name to the TMPDIR
@@ -98,6 +100,7 @@ class BatchFileData:
                     + file_version + '\n' \
                     + file_header + '\n' \
                     + file_module + '\n' \
+                    + file_envars + '\n' \
                     + file_body + '\n' \
                     + file_cmd + '\n' \
                     + file_footer
