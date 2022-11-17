@@ -9,6 +9,16 @@ def print_msg_with_header(msg_header, msg):
     print(msg)
 
 
+def print_info(msg, indentation='    '):
+    """
+    Print a debug message to terminal
+    :param msg: Message body
+    :param indentation: Message indentation
+    :return: None
+    """
+    print(indentation + msg)
+
+
 def print_dbg_info(msg):
     """
     Print a debug message to terminal

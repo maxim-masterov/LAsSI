@@ -8,6 +8,7 @@ from batch_data import BatchFileData
 from src_data import SrcData
 from tests import Tests
 from executer import Executer
+import io_manager
 
 
 # GOAL:
@@ -59,7 +60,7 @@ def print_version(app, text):
     :param text: Text that has a version name in it
     :return: None
     """
-    print(app + ' version: ' + get_version_from_text(text))
+    io_manager.print_info(app + ' version: ' + get_version_from_text(text))
 
 
 def dump_text_to_file(filename, text):
@@ -83,8 +84,8 @@ def load_modules(module_list):
                 subprocess.run(['module', 'load', module])
 
         else:
-            print_err_info('A module list was specified but there is '
-                           'no \'module\' command available')
+            io_manager.print_err_info('A module list was specified but there is '
+                                      'no \'module\' command available')
 
 
 def execute_app(app_name, app_keys, stderr=subprocess.DEVNULL):
@@ -130,9 +131,9 @@ def report_statistics(module_list):
                     info_type = 'kernel version'
                 elif keys == '-m':
                     info_type = 'machine'
-                print(info_type + ': ' + output)
+                io_manager.print_info(info_type + ': ' + output)
             else:
-                print(app + ': found')
+                io_manager.print_info(app + ': found')
                 if app == 'python2':
                     # Python2 outputs `--version` to stderr, see 
                     # https://bugs.python.org/issue18338. We need 
@@ -143,10 +144,10 @@ def report_statistics(module_list):
                 if app == 'mpirun':
                     for vendor in list_of_mpi_vendors:
                         if vendor in output:
-                            print(app + ' vendor: ' + vendor)
+                            io_manager.print_info(app + ' vendor: ' + vendor)
                 print_version(app, output)
         else:
-            print(app + ': not found')
+            io_manager.print_info(app + ': not found')
 
 
 # Press the green button in the gutter to run the script.
@@ -169,5 +170,13 @@ if __name__ == '__main__':
 
     # print('\n--- generate batch script')
     # batch.generate_batch_file(src)
-    exec.create_dir('tmp')
+    tmp_dir_name = 'tmp'
+    exec.create_dir(tmp_dir_name)
+    exec.copy_src(src, tmp_dir_name)
+    batch.generate_batch_file(src, tmp_dir_name)
+    # batch.generate_interactive_cmd(src, tmp_dir_name)
+
+    if src.get_recompile_flag():
+        print(src.get_compile_cmd())
+
     # test.omp_scalability(batch, src, thread_range)
