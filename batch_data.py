@@ -2,7 +2,7 @@ import json
 import os
 # from io import print_err_info
 from version import *
-from io import *
+import io_manager
 
 
 class BatchFileData:
@@ -202,17 +202,17 @@ class BatchFileData:
 
     def submit_batch_script(self, batch_filename):
         if batch_filename == '':
-            print_err_info('Batch file name is empty')
+            io_manager.print_err_info('Batch file name is empty')
             exit(-1)
         os.system('sbatch ' + batch_filename)
 
 
     def submit_interactively(self, cmd, bash_file_name):
         if cmd == '':
-            print_err_info('Command for the interactive submission is empty')
+            io_manager.print_err_info('Command for the interactive submission is empty')
             exit(-1)
         if bash_file_name == '':
-            print_err_info('Bash file name is empty')
+            io_manager.print_err_info('Bash file name is empty')
             exit(-1)
 
         os.system('chmod +x ' + bash_file_name)
