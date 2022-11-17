@@ -7,6 +7,7 @@ import json
 from batch_data import BatchFileData
 from src_data import SrcData
 from tests import Tests
+from executer import Executer
 
 
 # GOAL:
@@ -25,38 +26,6 @@ from tests import Tests
 # TODO:
 #  - take binary name as an input parameter
 #  - write batch script based on specification from the command line
-
-
-def print_msg_with_header(msg_header, msg):
-    """
-    Print a message with a header to terminal
-    :param msg_header: Header of the message
-    :param msg: Message body
-    :return: None
-    """
-    print(msg_header, end=' ')
-    print(msg)
-
-
-def print_dbg_info(msg):
-    """
-    Print a debug message to terminal
-    :param msg: Message body
-    :return: None
-    """
-    msg_header = "== DEBUG =="
-    if __debug__:
-        print_msg_with_header(msg_header, msg)
-
-
-def print_err_info(msg):
-    """
-    Print an error message to terminal
-    :param msg: Message body
-    :return: None
-    """
-    msg_header = "== ERROR =="
-    print_msg_with_header(msg_header, msg)
 
 
 def is_available(name):
@@ -186,18 +155,19 @@ if __name__ == '__main__':
     batch = BatchFileData()
     src = SrcData()
     test = Tests()
+    exec = Executer()
     thread_range = range(1, 3)
 
     # Read basic configuration
     batch.read_config(thread_range, 'config.json')
     src.read_config('config.json')
 
-    print('\n--- start test')
+    # print('\n--- start test')
 
-    print('\n--- report statistics')
-    report_statistics(batch)
+    # print('\n--- report statistics')
+    # report_statistics(batch)
 
-    print('\n--- generate batch script')
+    # print('\n--- generate batch script')
     # batch.generate_batch_file(src)
-
-    test.omp_scalability(batch, src, thread_range)
+    exec.create_dir('tmp')
+    # test.omp_scalability(batch, src, thread_range)

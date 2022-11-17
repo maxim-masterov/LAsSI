@@ -8,6 +8,10 @@ class SrcData:
     _recompile = True
 
 
+    def should_recompile(self):
+        return self._recompile
+
+
     def get_compile_cmd(self):
         return self._compile_command + ' ' + self._compiler_flags
 
