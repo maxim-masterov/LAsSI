@@ -15,7 +15,7 @@ class Tests:
             tmp_dir_name = 'run' + postfix
             exec.create_wrk_copy(src_data, tmp_dir_name)
             full_tmp_path = os.path.join(exec.get_full_wrk_dir_path(), tmp_dir_name)
-            print(full_tmp_path)
+            
             batch_data.envars = [('OMP_NUM_THREADS', num_threads)]
             batch_data.cpus = num_threads
             batch_file_name = batch_data.generate_batch_file(src_data, full_tmp_path, postfix)
