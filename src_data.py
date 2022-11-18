@@ -3,6 +3,7 @@ import os
 
 import io_manager
 
+
 class SrcData:
     _compiler_cmd = ''
     _compiler_flags = ''
@@ -11,40 +12,31 @@ class SrcData:
     _exec_name =''
     _perf_regex = ''
 
-
     def get_compiler_cmd(self):
         return self._compiler_cmd
-
 
     def get_compiler_flags(self):
         return self._compiler_flags
 
-
     def get_src_path(self):
         return self._src_path
-
 
     def get_recompile_flag(self):
         return self._recompile
 
-    
     def get_perf_regex(self):
         return self._perf_regex
 
-
     def get_compile_cmd(self):
         return self._compiler_cmd + ' ' + self._compiler_flags
-
 
     def compile_src(self):
         cmd = self.get_compile_cmd()
         io_manager.print_dbg_info('Compile sources with: ' + cmd)
         os.system(cmd)
 
-
     def check_if_exec_exists(self):
         return os.path.isfile(self._exec_name)
-
 
     def read_config(self, config_file_name):
         """

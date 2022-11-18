@@ -5,6 +5,7 @@ import re
 
 import io_manager
 
+
 class Executer:
     
     _root_wrk_dir = os.getenv('PWD')
@@ -22,7 +23,6 @@ class Executer:
         else:
             io_manager.print_dbg_info('Working directory already exists: ' + full_path)
 
-
     def copy_src(self, src_data, dir_name):
         src_full_path = src_data.get_src_path()
         dst_full_path = self._root_wrk_dir + '/' + dir_name
@@ -30,10 +30,8 @@ class Executer:
                                   + src_full_path + ' --> ' + dst_full_path)
         self._copy_tree(src_full_path, dst_full_path)
 
-
     def execute(self):
         pass
-
 
     def parse_output_for_perf(self, filename, regex):
         """
@@ -58,7 +56,6 @@ class Executer:
             numbers.append(number)
         
         return numbers
-
 
     def _copy_tree(self, src, dst, symlinks=False, ignore=None):
         if os.path.exists(src):

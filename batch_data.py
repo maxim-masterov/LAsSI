@@ -44,7 +44,6 @@ class BatchFileData:
         )
         f.close()
 
-
     def dump_text_to_file(selft, filename, text):
         """
         Dump text to file
@@ -55,7 +54,6 @@ class BatchFileData:
         file = open(filename, 'w')
         file.write(text)
         file.close()
-
 
     def _assemble_file(self, src, name_postfix=''):
         """
@@ -122,10 +120,8 @@ class BatchFileData:
 
         return full_text, file_header
 
-
     def _assemble_bash_file_name(self, wrk_dir, name_postfix):
         return wrk_dir + '/' + self._script_base_name + name_postfix + '.' + self._bash_file_ext
-
 
     def generate_batch_file(self, src, wrk_dir='.', name_postfix=''):
         """
@@ -154,7 +150,6 @@ class BatchFileData:
         self.dump_text_to_file(batch_file_name, full_text)
 
         return batch_file_name
-
 
     def generate_interactive_cmd(self, src, wrk_dir='.', name_postfix=''):
         """
@@ -189,13 +184,11 @@ class BatchFileData:
 
         return complete_cmd_call, bash_file_name
 
-
     def submit_batch_script(self, batch_filename):
         if batch_filename == '':
             io_manager.print_err_info('Batch file name is empty')
             sys.exit(1)
         os.system('sbatch ' + batch_filename)
-
 
     def submit_interactively(self, cmd, bash_file_name):
         if cmd == '':
@@ -208,8 +201,6 @@ class BatchFileData:
         os.system('chmod +x ' + bash_file_name)
         io_manager.print_dbg_info('Interactive command: ' + cmd + ' ' + bash_file_name)
         # os.system(cmd + ' ' + bash_file_name)
-
-
 
 # - create tmpdir and report its full path
 # - copy sources to tmpdir
