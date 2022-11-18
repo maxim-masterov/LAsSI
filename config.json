@@ -10,7 +10,6 @@
         "time": 10,
         "has_gpus": false,
         "launcher": "srun",
-        "executable_name": "dot.out",
         "executable_options": "1000000000 seq"
     },
     "test_setup": {
@@ -19,9 +18,10 @@
         "path_to_src": "examples",
         "compile_command": "g++",
         "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
+        "executable_name": "dot.out",
         "tasks_range": [1, 1],
         "thread_range": [1, 3],
-        "//perf_regex": "Note that every backslash should sign e doubled",
+        "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"
     }
 }

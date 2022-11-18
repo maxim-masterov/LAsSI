@@ -39,15 +39,10 @@ if __name__ == '__main__':
     # print('\n--- generate batch script')
     # batch.generate_batch_file(src)
     tmp_dir_name = 'tmp'
-    exec.create_dir(tmp_dir_name)
-    exec.copy_src(src, tmp_dir_name)
+    exec.create_wrk_dir(tmp_dir_name)
+    exec.create_wrk_copy(src, tmp_dir_name)
     batch.generate_batch_file(src, tmp_dir_name)
     # batch.generate_interactive_cmd(src, tmp_dir_name)
-
-    if src.get_recompile_flag():
-        print(src.get_compile_cmd())
-
-    print(src.get_perf_regex())
     # exec.parse_output_for_perf(filename, regex)
 
     # test.omp_scalability(batch, src, thread_range)

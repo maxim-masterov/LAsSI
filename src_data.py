@@ -27,6 +27,9 @@ class SrcData:
     def get_perf_regex(self):
         return self._perf_regex
 
+    def get_exec_name(self):
+        return self._exec_name
+
     def get_compile_cmd(self):
         return self._compiler_cmd + ' ' + self._compiler_flags
 
@@ -36,7 +39,7 @@ class SrcData:
         os.system(cmd)
 
     def check_if_exec_exists(self):
-        return os.path.isfile(self._exec_name)
+        return os.path.isfile(self._src_path + '/' + self._exec_name)
 
     def read_config(self, config_file_name):
         """
@@ -50,7 +53,7 @@ class SrcData:
         self._compiler_cmd = data['test_setup']['compile_command']
         self._compiler_flags = data['test_setup']['compiler_flags']
         self._recompile = data['test_setup']['recompile']
-        self._exec_name = data['batch_data']['executable_name']
+        self._exec_name = data['test_setup']['executable_name']
         self._perf_regex = data['test_setup']['perf_regex']
 
         f.close()

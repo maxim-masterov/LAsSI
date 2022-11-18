@@ -9,7 +9,7 @@ import io_manager
 class BatchFileData:
     _modules = []
     _script_base_name = None
-    _exec_name = None
+    # _exec_name = None
     _exec_options = None
     _envars = None
     _nodes = 1
@@ -31,7 +31,7 @@ class BatchFileData:
         
         self._modules = data['modules']
         self._script_base_name = data['batch_data']['script_base_name']
-        self._exec_name = data['batch_data']['executable_name']
+        # self._exec_name = data['batch_data']['executable_name']
         self._exec_options = data['batch_data']['executable_options']
         self._launcher = data['batch_data']['launcher']
         self._nodes = data['batch_data']['nodes']
@@ -91,7 +91,7 @@ class BatchFileData:
         # 1) check if self._exec_name can be found in the current folder
         # 2) copy self._exec_name to the TMPDIR
         file_body  = 'echo "JOBID: ${SLURM_JOB_ID}"\n'
-        file_body += 'cp ' + self._exec_name + ' ${TMPDIR}\n'
+        file_body += 'cp ' + src.get_exec_name() + ' ${TMPDIR}\n'
         file_body += 'WRKDIR=${PWD}\n'
         if name_postfix != '':
             file_body += 'mkdir ${WRKDIR}/' + name_postfix + '\n'
@@ -101,7 +101,7 @@ class BatchFileData:
         for module in self._modules:
             file_module += 'module load ' + module + '\n'
 
-        file_cmd = self._launcher + ' ' + self._exec_name + ' ' + self._exec_options + '\n'
+        file_cmd = self._launcher + ' ' + src.get_exec_name() + ' ' + self._exec_options + '\n'
 
         file_footer = ''
         if name_postfix != '':
@@ -142,9 +142,10 @@ class BatchFileData:
 
         full_text = full_text.replace(header_str, file_header)
 
-        io_manager.print_dbg_info('----------------------------------------')
+        io_manager.print_dbg_info('Generated batch script:')
+        io_manager.print_info('----------------------------------------', '')
         io_manager.print_info(full_text, '')
-        io_manager.print_dbg_info('----------------------------------------')
+        io_manager.print_info('----------------------------------------', '')
 
         batch_file_name = self._assemble_bash_file_name(wrk_dir, name_postfix)
         self.dump_text_to_file(batch_file_name, full_text)
@@ -170,9 +171,10 @@ class BatchFileData:
 
         full_text, header_str = self._assemble_file(src, name_postfix)
 
-        io_manager.print_dbg_info('----------------------------------------')
+        io_manager.print_dbg_info('Generated batch script:')
+        io_manager.print_info('----------------------------------------', '')
         io_manager.print_info(full_text, '')
-        io_manager.print_dbg_info('----------------------------------------')
+        io_manager.print_info('----------------------------------------', '')
 
         bash_file_name = self._assemble_bash_file_name(wrk_dir, name_postfix)
         self.dump_text_to_file(bash_file_name, full_text)
