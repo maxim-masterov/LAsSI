@@ -21,7 +21,7 @@
         "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
         "tasks_range": [1, 1],
         "thread_range": [1, 3],
-	"//perf_regex": "Note that every backslash should sign e doubled",
-	"perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"
+        "//perf_regex": "Note that every backslash should sign e doubled",
+        "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"
     }
 }
