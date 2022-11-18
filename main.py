@@ -39,9 +39,9 @@ if __name__ == '__main__':
     # print('\n--- generate batch script')
     # batch.generate_batch_file(src)
     tmp_dir_name = 'tmp'
-    exec.create_wrk_dir(tmp_dir_name)
+    exec.create_wrk_dir()
     exec.create_wrk_copy(src, tmp_dir_name)
-    batch.generate_batch_file(src, tmp_dir_name)
+    # batch.generate_batch_file(src, tmp_dir_name)
     # batch.generate_interactive_cmd(src, tmp_dir_name)
     # exec.parse_output_for_perf(filename, regex)
 
