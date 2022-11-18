@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import re
 
 from version import *
 import io_manager
@@ -19,6 +20,7 @@ class BatchFileData:
     _time = 1
     _launcher = 'srun'
     _bash_file_ext = 'sh'
+    _log_name = 'output.log'
 
     def read_config(self, thread_range, config_file_name):
         """
@@ -93,8 +95,9 @@ class BatchFileData:
         file_body  = 'echo "JOBID: ${SLURM_JOB_ID}"\n'
         file_body += 'cp ' + src.get_exec_name() + ' ${TMPDIR}\n'
         file_body += 'WRKDIR=${PWD}\n'
+        results_dir = '${WRKDIR}/results' + name_postfix
         if name_postfix != '':
-            file_body += 'mkdir ${WRKDIR}/' + name_postfix + '\n'
+            file_body += 'mkdir ' + results_dir + '\n'
         file_body += 'cd ${TMPDIR}\n'
 
         file_module = 'module purge\n'
@@ -105,7 +108,7 @@ class BatchFileData:
 
         file_footer = ''
         if name_postfix != '':
-            file_footer  = 'cp -r ${TMPDIR} ${WRKDIR}/' + name_postfix + '\n'
+            file_footer  = 'cp -r ${TMPDIR} ' + results_dir + '\n'
             # file_footer += 'cp slurm-${SLURM_JOB_ID}.out ' + name_postfix
 
         full_text = file_shebang + '\n' \
@@ -186,11 +189,42 @@ class BatchFileData:
 
         return complete_cmd_call, bash_file_name
 
-    def submit_batch_script(self, batch_filename):
-        if batch_filename == '':
+    def _extract_job_id(self, filename):
+        file = open(filename, 'r')
+        str = file.read()
+        file.close()
+
+        regex = r'Submitted\sbatch\sjob\s*([^\n]+)'
+        srch = re.compile(regex)
+        job_id = srch.search(str).group(1)
+
+        return job_id
+
+    def _extract_job_state(self, filename):
+        file = open(filename, 'r')
+        str = file.read()
+        file.close()
+
+        regex = r'State:\s*([^\s]+)'
+        srch = re.compile(regex)
+        state = srch.search(str).group(1)
+        
+        return state
+
+    def submit_batch_script(self, batch_file_name):
+        if batch_file_name == '':
             io_manager.print_err_info('Batch file name is empty')
             sys.exit(1)
-        os.system('sbatch ' + batch_filename)
+        
+        io_manager.print_dbg_info('Submit batch script: ' + batch_file_name)
+
+        os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
+
+        # Report job ID and exit state
+        job_id = self._extract_job_id(self._log_name)
+        slurm_file_name = 'slurm-' + job_id + '.out'
+        state = self._extract_job_state(slurm_file_name)
+        io_manager.print_dbg_info('Job #' + job_id +' is finished with state: ' + state)
 
     def submit_interactively(self, cmd, bash_file_name):
         if cmd == '':
