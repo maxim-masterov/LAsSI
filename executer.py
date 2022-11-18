@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import re
 
 import io_manager
 
@@ -32,6 +33,31 @@ class Executer:
 
     def execute(self):
         pass
+
+
+    def parse_output_for_perf(self, filename, regex):
+        """
+        Parse file 'filename' and find all values that correspond to the 
+        'regex'.
+        :param filename: Name of the file to parse
+        :param regex: Regular expression to look for in the file
+        :return: List of found values
+        """
+        file = open(filename, 'r')
+        str = file.read()
+        file.close()
+
+        # parse using regex
+        srch = re.compile(regex)
+        res = srch.findall(str)
+
+        # extract all numbers
+        numbers = []
+        for elt in res:
+            number = [float(x) for x in re.findall(r'-?\d+\.?\d*', elt)]
+            numbers.append(number)
+        
+        return numbers
 
 
     def _copy_tree(self, src, dst, symlinks=False, ignore=None):

@@ -95,7 +95,8 @@ class BatchFileData:
         file_body  = 'echo "JOBID: ${SLURM_JOB_ID}"\n'
         file_body += 'cp ' + self._exec_name + ' ${TMPDIR}\n'
         file_body += 'WRKDIR=${PWD}\n'
-        file_body += 'mkdir ${WRKDIR}/' + name_postfix + '\n'
+        if name_postfix != '':
+            file_body += 'mkdir ${WRKDIR}/' + name_postfix + '\n'
         file_body += 'cd ${TMPDIR}\n'
 
         file_module = 'module purge\n'

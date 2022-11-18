@@ -9,6 +9,7 @@ class SrcData:
     _src_path = ''
     _recompile = True
     _exec_name =''
+    _perf_regex = ''
 
 
     def get_compiler_cmd(self):
@@ -25,6 +26,10 @@ class SrcData:
 
     def get_recompile_flag(self):
         return self._recompile
+
+    
+    def get_perf_regex(self):
+        return self._perf_regex
 
 
     def get_compile_cmd(self):
@@ -54,5 +59,6 @@ class SrcData:
         self._compiler_flags = data['test_setup']['compiler_flags']
         self._recompile = data['test_setup']['recompile']
         self._exec_name = data['batch_data']['executable_name']
+        self._perf_regex = data['test_setup']['perf_regex']
 
         f.close()

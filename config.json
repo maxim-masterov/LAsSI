@@ -18,9 +18,10 @@
         "recompile": true,
         "path_to_src": "examples",
         "compile_command": "g++",
-        "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out example/dot_test.cpp",
+        "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
         "tasks_range": [1, 1],
         "thread_range": [1, 3],
-        "key_words": "### Dot-product time:"
+	"//perf_regex": "Note that every backslash should sign e doubled",
+	"perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"
     }
 }

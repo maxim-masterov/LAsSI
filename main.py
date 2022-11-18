@@ -179,4 +179,7 @@ if __name__ == '__main__':
     if src.get_recompile_flag():
         print(src.get_compile_cmd())
 
+    print(src.get_perf_regex())
+    # exec.parse_output_for_perf(filename, regex)
+
     # test.omp_scalability(batch, src, thread_range)
