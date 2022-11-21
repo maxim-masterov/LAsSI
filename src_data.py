@@ -11,6 +11,7 @@ class SrcData:
     _recompile = True
     _exec_name =''
     _perf_regex = ''
+    _perf_lable = ''
 
     def get_compiler_cmd(self):
         return self._compiler_cmd
@@ -26,6 +27,9 @@ class SrcData:
 
     def get_perf_regex(self):
         return self._perf_regex
+
+    def get_perf_label(self):
+        return self._perf_lable
 
     def get_exec_name(self):
         return self._exec_name
@@ -55,5 +59,6 @@ class SrcData:
         self._recompile = data['test_setup']['recompile']
         self._exec_name = data['test_setup']['executable_name']
         self._perf_regex = data['test_setup']['perf_regex']
+        self._perf_lable = data['test_setup']['perf_lable']
 
         f.close()
