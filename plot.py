@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Plot:
-    def plot_line(self, data, x_range, highlight, title, x_label='omp_threads', y_label='time, [s]'):
+    def _plot_line(self, data, x_range, highlight, title, x_label='omp_threads', y_label='time, [s]'):
         # set up the canvas
         plt.ylabel('time, [s]')
         plt.xlabel(x_label)
@@ -22,12 +22,37 @@ class Plot:
         plt.savefig(title + '.png')
         plt.clf()
 
+    def _plot_bar(data, labels, highlight, title, x_label='time, [s]', y_label='flags'):
+        # set up the canvas
+        plt.xlabel(y_label)
+        plt.xlabel(x_label)
+        # plt.grid()
+        plt.title(title + ' plot')
+
+        # plot performance values
+        y_pos = np.arange(len(labels))
+        plt.barh(labels, data, align='center',
+                color=['steelblue' if (d > highlight[1]) else 'lightcoral' for d in data])
+        plt.tight_layout()
+
+        # visualize and save the plot
+        # plt.show()
+        plt.savefig(title + '.png')
+        plt.clf()
+
+
+    def plot_compiler_flags(self, data, labels, title, x_label='omp_threads', y_label='time, [s]'):
+        best_value = min(data)
+        best_pos = labels[data.index(best_value)]
+
+        self._plot_bar(data, labels, (best_pos, best_value), title)
+
 
     def plot_scalability(self, data, x_range, title, x_label='omp_threads', y_label='time, [s]'):
         best_value = min(data)
         best_pos = x_range[data.index(best_value)]
 
-        self.plot_line(data, x_range, (best_pos, best_value), title, x_label, y_label)
+        self._plot_line(data, x_range, (best_pos, best_value), title, x_label, y_label)
 
 
     def plot_parallel_efficiency(self, data, x_range, title, x_label='omp_threads', y_label='time, [s]'):
@@ -53,4 +78,4 @@ class Plot:
                 best_value = val
                 best_pos = ind + 1
 
-        self.plot_line(efficiency, x_range, (best_pos, best_value), title, x_label, y_label)
+        self._plot_line(efficiency, x_range, (best_pos, best_value), title, x_label, y_label)
