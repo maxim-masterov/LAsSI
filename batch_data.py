@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import re
+import time
 
 from version import *
 import io_manager
@@ -189,32 +190,6 @@ class BatchFileData:
 
         return complete_cmd_call, bash_file_name
 
-    def _extract_job_id(self, filename):
-        with open(filename, 'r') as file:
-            str = file.read()
-
-        regex = r'Submitted\sbatch\sjob\s*([^\n]+)'
-        srch = re.compile(regex, re.MULTILINE)
-        job_id = srch.search(str)
-        if job_id is None:
-            io_manager.print_err_info('Regex search returned None')
-            return None
-
-        return job_id.group(1)
-
-    def _extract_job_state(self, filename):
-        with open(filename, 'r') as file:
-            str = file.read()
-
-        regex = r'State:\s*([^\s]+)'
-        srch = re.compile(regex, re.MULTILINE)
-        state = srch.search(str)
-        if state is None:
-            io_manager.print_err_info('Regex search returned None')
-            return None
-        
-        return state.group(1)
-
     def submit_batch_script(self, batch_file_name):
         if batch_file_name == '':
             io_manager.print_err_info('Batch file name is empty')
@@ -222,9 +197,7 @@ class BatchFileData:
         
         io_manager.print_dbg_info('Submit batch script: ' + batch_file_name)
 
-        # os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
-
-        # TODO: wait until slurm file is created!!!
+        os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
 
         # Report job ID and exit state
         job_id = self._extract_job_id(self._log_name)
@@ -247,10 +220,52 @@ class BatchFileData:
         io_manager.print_dbg_info('Interactive command: ' + cmd + ' ' + bash_file_name)
         # os.system(cmd + ' ' + bash_file_name)
 
-# - create tmpdir and report its full path
-# - copy sources to tmpdir
-# - write job script in tmpdir
-# - submit jobscript(s) in tmpdir
-#  - export variables
-#  - build sources
-# - wait untill all jobscripts are finished (async. calls? subprocesses?)
+    def _wait_for_file(self, filename, max_wait_sec=60, check_interval=0.2):
+        """
+        Wait for file. Return True if file was detected within specified 'max_wait_sec'
+        limit
+        :param filename: filename on task machine
+        :param max_wait_sec: how long to wait in seconds
+        :param check_interval: how often to check in seconds
+        :return: False if waiting was was cut short by max_wait_sec limit, True otherwise
+        """
+        start_time = time.time()
+        while True:
+            if time.time() - start_time > max_wait_sec:
+                io_manager.print_dbg_info('Timeout exceeded (' + max_wait_sec 
+                                          + ' sec) for ' + filename)
+                return False
+            if not self.exists(fn):
+                time.sleep(check_interval)
+                continue
+            else:
+                break
+        return True 
+
+    def _extract_job_id(self, filename):
+        self._wait_for_file(filename)
+        with open(filename, 'r') as file:
+            str = file.read()
+
+        regex = r'Submitted\sbatch\sjob\s*([^\n]+)'
+        srch = re.compile(regex, re.MULTILINE)
+        job_id = srch.search(str)
+        if job_id is None:
+            io_manager.print_err_info('Regex search returned None')
+            return None
+
+        return job_id.group(1)
+
+    def _extract_job_state(self, filename):
+        self._wait_for_file(filename)
+        with open(filename, 'r') as file:
+            str = file.read()
+
+        regex = r'State:\s*([^\s]+)'
+        srch = re.compile(regex, re.MULTILINE)
+        state = srch.search(str)
+        if state is None:
+            io_manager.print_err_info('Regex search returned None')
+            return None
+        
+        return state.group(1)
