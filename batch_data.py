@@ -235,7 +235,7 @@ class BatchFileData:
                 io_manager.print_dbg_info('Timeout exceeded (' + max_wait_sec 
                                           + ' sec) for ' + filename)
                 return False
-            if not self.exists(fn):
+            if not self.exists(filename):
                 time.sleep(check_interval)
                 continue
             else:
