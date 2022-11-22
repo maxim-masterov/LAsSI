@@ -235,7 +235,7 @@ class BatchFileData:
                 io_manager.print_dbg_info('Timeout exceeded (' + max_wait_sec 
                                           + ' sec) for ' + filename)
                 return False
-            if not self.exists(filename):
+            if not os.path.isfile(filename):
                 time.sleep(check_interval)
                 continue
             else:
@@ -243,6 +243,11 @@ class BatchFileData:
         return True 
 
     def _extract_job_id(self, filename):
+        """
+        Extract job id from a file using predefined regex
+        :param filename: Name of the file
+        :return: Job ID
+        """
         self._wait_for_file(filename)
         with open(filename, 'r') as file:
             str = file.read()
@@ -257,6 +262,11 @@ class BatchFileData:
         return job_id.group(1)
 
     def _extract_job_state(self, filename):
+        """
+        Extract job state from a slurm output file using predefined regex
+        :param filename: Name of the file
+        :return: Job state
+        """
         self._wait_for_file(filename)
         with open(filename, 'r') as file:
             str = file.read()
