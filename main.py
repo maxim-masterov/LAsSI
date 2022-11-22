@@ -11,12 +11,12 @@ from statistics import Statistics
 #  1) automate the parallel performance analysis of the binaries (C/C++/Fortran)
 #  2) invoke analysis using provided range of tasks/processes with optionally
 #     specified step (e.g. 1..32:1)
-#  3) in case of MPI code, detect MPI vendor (OMP/IMPI) and test advanced MPI
-#     collective optimization via envars. use the most optimal execution from the
+#  3) in case of an MPI code, detect MPI vendor (OMP/IMPI) and test advanced MPI
+#     collective optimization via envars. Use the most optimal execution from the
 #     previous step
 #  4) test different compiler flags
-#  5) plot graphs of scalability (step 2), histograms of collective calls (step 3),
-#     and histograms of compiler flags (step 4)
+#  5) plot graphs of scalability (step 2), bar plots of collective calls (step 3),
+#     and bar plots of compiler flags (step 4)
 
 
 # Press the green button in the gutter to run the script.
@@ -33,22 +33,8 @@ if __name__ == '__main__':
     batch.read_config(thread_range, 'config.json')
     src.read_config('config.json')
 
-    # print('\n--- start test')
-
-    # print('\n--- report statistics')
-    # stat.report_statistics(batch)
-
-    # print('\n--- generate batch script')
-    # batch.generate_batch_file(src)
+    # execute tests
     tmp_dir_name = 'tmp'
-    # exec.create_wrk_dir()
-    # exec.create_wrk_copy(src, tmp_dir_name)
-    # full_tmp_path = os.path.join(exec.get_full_wrk_dir_path(), tmp_dir_name)
-    # print(full_tmp_path)
-    # batch.generate_batch_file(src, full_tmp_path)
-    # batch.generate_interactive_cmd(src, tmp_dir_name)
-    # exec.parse_output_for_perf(filename, regex)
-
     exec.create_wrk_dir()
     # test.omp_scalability(exec, batch, src, thread_range)
     test.compiler_flags(exec, batch, src)
