@@ -11,7 +11,6 @@ import io_manager
 class BatchFileData:
     _modules = []
     _script_base_name = None
-    # _exec_name = None
     _exec_options = None
     _envars = None
     _nodes = 1
@@ -22,6 +21,42 @@ class BatchFileData:
     _launcher = 'srun'
     _bash_file_ext = 'sh'
     _log_name = 'output.log'
+
+    def get_modules(self):
+        return self._modules
+
+    def get_script_base_name(self):
+        return self._script_base_name
+
+    def get_exec_options(self):
+        return self._exec_options
+
+    def get_envars(self):
+        return self._envars
+
+    def get_nodes(self):
+        return self._nodes
+
+    def get_ntasks(self):
+        return self._ntasks
+
+    def get_cpus(self):
+        return self._cpus
+
+    def get_partition(self):
+        return self._partition
+
+    def get_time(self):
+        return self._time
+
+    def get_launcher(self):
+        return self._launcher
+
+    def get_bash_file_ext(self):
+        return self._bash_file_ext
+
+    def get_log_name(self):
+        return self._log_name
 
     def read_config(self, thread_range, config_file_name):
         """
@@ -34,7 +69,7 @@ class BatchFileData:
         
         self._modules = data['modules']
         self._script_base_name = data['batch_data']['script_base_name']
-        # self._exec_name = data['batch_data']['executable_name']
+        self._partition = data['batch_data']['partition']
         self._exec_options = data['batch_data']['executable_options']
         self._launcher = data['batch_data']['launcher']
         self._nodes = data['batch_data']['nodes']
@@ -58,7 +93,7 @@ class BatchFileData:
         file.write(text)
         file.close()
 
-    def _assemble_file(self, src, name_postfix='', flag_id=0):
+    def _assemble_file(self, src, name_postfix='', compiler_flag_id=0):
         """
         Generate batch script from the provided input
         :param src: Object of ScrData
@@ -77,16 +112,16 @@ class BatchFileData:
             file_header += '#SBATCH -o ./' + name_postfix + '/output.%j.out\n'
 
         file_envars = ''
-        if not self._envars:
+        if not self.get_envars():
             file_envars = '# no environment variables set\n'
         else:
-            for envar, value in self._envars:
+            for envar, value in self.get_envars():
                 file_envars += 'export ' + envar + '=' + str(value) + '\n'
 
         # Compile the code
         file_comp = ''
         if src.get_recompile_flag():
-            file_comp = src.get_compile_cmd(flag_id) + '\n'
+            file_comp = src.get_compile_cmd(compiler_flag_id) + '\n'
         else:
             file_comp = '# do not rebuild sources \n'
 
@@ -102,10 +137,10 @@ class BatchFileData:
         file_body += 'cd ${TMPDIR}\n'
 
         file_module = 'module purge\n'
-        for module in self._modules:
+        for module in self.get_modules():
             file_module += 'module load ' + module + '\n'
 
-        file_cmd = self._launcher + ' ' + src.get_exec_name() + ' ' + self._exec_options + '\n'
+        file_cmd = self.get_launcher() + ' ' + src.get_exec_name() + ' ' + self.get_exec_options() + '\n'
 
         file_footer = ''
         if name_postfix != '':
@@ -125,9 +160,9 @@ class BatchFileData:
         return full_text, file_header
 
     def _assemble_bash_file_name(self, wrk_dir, name_postfix):
-        return wrk_dir + '/' + self._script_base_name + name_postfix + '.' + self._bash_file_ext
+        return wrk_dir + '/' + self.get_script_base_name() + name_postfix + '.' + self.get_bash_file_ext()
 
-    def generate_batch_file(self, src, wrk_dir='.', name_postfix='', flag_id=0):
+    def generate_batch_file(self, src, wrk_dir='.', name_postfix='', compiler_flag_id=0):
         """
         Generate batch script from the provided input
         :param src: Object of ScrData
@@ -138,11 +173,11 @@ class BatchFileData:
                       '#SBATCH -n {1}\n' \
                       '#SBATCH -c {2}\n' \
                       '#SBATCH -p {3}\n' \
-                      '#SBATCH -t {4}\n'.format(self._nodes, self._ntasks, 
-                                                self._cpus, self._partition,
-                                                self._time)
+                      '#SBATCH -t {4}\n'.format(self.get_nodes(), self.get_ntasks(), 
+                                                self.get_cpus(), self.get_partition(),
+                                                self.get_time())
 
-        full_text, header_str = self._assemble_file(src, name_postfix, flag_id)
+        full_text, header_str = self._assemble_file(src, name_postfix, compiler_flag_id)
 
         full_text = full_text.replace(header_str, file_header)
 
@@ -166,9 +201,9 @@ class BatchFileData:
                      '-n {1} ' \
                      '-c {2} ' \
                      '-p {3} ' \
-                     '-t {4} '.format(self._nodes, self._ntasks, 
-                                      self._cpus, self._partition,
-                                      self._time)
+                     '-t {4} '.format(self.get_nodes(), self.get_ntasks(),
+                                      self.get_cpus(), self.get_partition(),
+                                      self.get_time())
 
         if name_postfix != '':
             cmd_header += '-o ./' + name_postfix + '/output.%j.out '
@@ -195,16 +230,25 @@ class BatchFileData:
             io_manager.print_err_info('Batch file name is empty')
             sys.exit(1)
         
+        # clean up the tmp file
+        if os.path.isfile(self.get_log_name()):
+            os.remove(self.get_log_name())
+
         io_manager.print_dbg_info('Submit batch script: ' + batch_file_name)
 
-        os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
+        os.system('sbatch --wait ' + batch_file_name + ' &> ' + self.get_log_name())
 
         # Report job ID and exit state
-        job_id = self._extract_job_id(self._log_name)
+        job_id = self._extract_job_id(self.get_log_name())
         slurm_file_name = 'slurm-' + job_id + '.out'
         # print('slurm_file_name: ' + slurm_file_name)
         state = self._extract_job_state(slurm_file_name)
-        io_manager.print_dbg_info('Job #' + job_id +' is finished with state: ' + state)
+        if job_id == None:
+            io_manager.print_err_info('Could not parse the job ID. Returned value is None')
+        elif state == None:
+            io_manager.print_err_info('Could not parse the job state. Returned value is None')
+        else:
+            io_manager.print_dbg_info('Job #' + str(job_id) +' is finished with state: ' + state)
 
         return job_id
 
@@ -220,7 +264,7 @@ class BatchFileData:
         io_manager.print_dbg_info('Interactive command: ' + cmd + ' ' + bash_file_name)
         # os.system(cmd + ' ' + bash_file_name)
 
-    def _wait_for_file(self, filename, max_wait_sec=60, check_interval=0.2):
+    def _wait_for_file(self, filename, max_wait_sec=120, check_interval=0.2):
         """
         Wait for file. Return True if file was detected within specified 'max_wait_sec'
         limit
@@ -232,7 +276,7 @@ class BatchFileData:
         start_time = time.time()
         while True:
             if time.time() - start_time > max_wait_sec:
-                io_manager.print_dbg_info('Timeout exceeded (' + max_wait_sec 
+                io_manager.print_dbg_info('Timeout exceeded (' + str(max_wait_sec)
                                           + ' sec) for ' + filename)
                 return False
             if not os.path.isfile(filename):
@@ -256,7 +300,7 @@ class BatchFileData:
         srch = re.compile(regex, re.MULTILINE)
         job_id = srch.search(str)
         if job_id is None:
-            io_manager.print_err_info('Regex search returned None')
+            io_manager.print_err_info('Cannot extract job ID. Regex search returned None')
             return None
 
         return job_id.group(1)
@@ -275,7 +319,7 @@ class BatchFileData:
         srch = re.compile(regex, re.MULTILINE)
         state = srch.search(str)
         if state is None:
-            io_manager.print_err_info('Regex search returned None')
+            io_manager.print_err_info('Cannot extract job state. Regex search returned None')
             return None
         
         return state.group(1)

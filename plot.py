@@ -1,10 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from textwrap import wrap
 
 import io_manager
 
 
 class Plot:
+    _dpi = 100
+
+    def _get_dpi(self):
+        return self._dpi
+
     def _plot_line(self, data, x_range, highlight, title, x_label='omp_threads', y_label='time, [s]'):
         # set up the canvas
         plt.ylabel('time, [s]')
@@ -23,7 +29,8 @@ class Plot:
         # visualize and save the plot
         # plt.show()
         self._save_file(title)
-        
+
+        plt.clf()
 
     def _plot_bar(self, data, labels, highlight, title, x_label='time, [s]', y_label='flags'):
         # set up the canvas
@@ -32,20 +39,28 @@ class Plot:
         # plt.grid()
         plt.title(title + ' plot')
 
+        # make sure labels fit into the canvas
+        labels = ['\n'.join(wrap(l, 30)) for l in labels]
+
         # plot performance values
         y_pos = np.arange(len(labels))
-        plt.barh(labels, data, align='center',
-                color=['steelblue' if (d > highlight[1]) else 'lightcoral' for d in data])
+        f = plt.figure()
+        f.set_figwidth(10)
+        f.set_figheight(int(len(data) * 0.5))
+        hbars = plt.barh(labels, data, align='center',
+                         color=['steelblue' if (d > highlight[1]) else 'lightcoral' for d in data])
+        plt.bar_label(hbars, label_type='center', fmt='%.4f')
         plt.tight_layout()
 
         # visualize and save the plot
         # plt.show()
         self._save_file(title)
+        
+        plt.clf()
 
     def _save_file(self, title):
         output_filename = title + '.png'
-        plt.savefig(output_filename)
-        plt.clf()
+        plt.savefig(output_filename, dpi=self._get_dpi())
         io_manager.print_dbg_info('File ' + output_filename + ' is saved')
 
 

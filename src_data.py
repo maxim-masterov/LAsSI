@@ -38,8 +38,13 @@ class SrcData:
     def get_list_of_src_files(self):
         return self._list_of_src_files
 
-    def get_compile_cmd(self, flag_id=0):
-        cmd = self.get_compiler_cmd() + ' ' + self.get_compiler_flags()[flag_id]
+    def get_compile_cmd(self, compiler_flag_id=0):
+        """
+        Return a full command to compile the sources
+        :param compiler_flag_id: ID of a compiler flag from the config file
+        :return: Full compile command
+        """
+        cmd = self.get_compiler_cmd() + ' ' + self.get_compiler_flags()[compiler_flag_id]
         cmd += ' -o ' + self.get_exec_name()
         for src_file in self.get_list_of_src_files():
             cmd += ' ' + src_file
