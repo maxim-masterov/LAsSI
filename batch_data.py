@@ -190,9 +190,6 @@ class BatchFileData:
         return complete_cmd_call, bash_file_name
 
     def _extract_job_id(self, filename):
-        # file = open(filename, 'r')
-        # str = file.read()
-        # file.close()
         with open(filename, 'r') as file:
             str = file.read()
 
@@ -206,14 +203,9 @@ class BatchFileData:
         return job_id.group(1)
 
     def _extract_job_state(self, filename):
-        # file = open(filename, 'r')
-        # str = file.read()
-        # file.close()
-
         with open(filename, 'r') as file:
             str = file.read()
 
-        # print(filename, str)
         regex = r'State:\s*([^\s]+)'
         srch = re.compile(regex, re.MULTILINE)
         state = srch.search(str)
@@ -230,7 +222,9 @@ class BatchFileData:
         
         io_manager.print_dbg_info('Submit batch script: ' + batch_file_name)
 
-        os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
+        # os.system('sbatch --wait ' + batch_file_name + ' &> ' + self._log_name)
+
+        # TODO: wait until slurm file is created!!!
 
         # Report job ID and exit state
         job_id = self._extract_job_id(self._log_name)

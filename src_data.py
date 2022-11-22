@@ -12,6 +12,7 @@ class SrcData:
     _exec_name =''
     _perf_regex = ''
     _perf_lable = ''
+    _list_of_src_files = []
 
     def get_compiler_cmd(self):
         return self._compiler_cmd
@@ -34,8 +35,15 @@ class SrcData:
     def get_exec_name(self):
         return self._exec_name
 
+    def get_list_of_src_files(self):
+        return self._list_of_src_files
+
     def get_compile_cmd(self, flag_id=0):
-        return self.get_compiler_cmd() + ' ' + self.get_compiler_flags()[flag_id]
+        cmd = self.get_compiler_cmd() + ' ' + self.get_compiler_flags()[flag_id]
+        cmd += ' -o ' + self.get_exec_name()
+        for src_file in self.get_list_of_src_files():
+            cmd += ' ' + src_file
+        return cmd
 
     def compile_src(self):
         cmd = self.get_compile_cmd()
@@ -60,5 +68,6 @@ class SrcData:
         self._exec_name = data['test_setup']['executable_name']
         self._perf_regex = data['test_setup']['perf_regex']
         self._perf_lable = data['test_setup']['perf_lable']
+        self._list_of_src_files = data['test_setup']['list_of_src_files']
 
         f.close()

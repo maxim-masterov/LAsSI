@@ -18,14 +18,17 @@
         "path_to_src": "examples",
         "compile_command": "g++",
         "compiler_flags": [
-            "-fopenmp -O1 -DUSE_OPENMP -o dot.out dot_test.cpp",
-            "-fopenmp -O2 -DUSE_OPENMP -o dot.out dot_test.cpp",
-            "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
-            "-fopenmp -O3 -mavx2 -DUSE_OPENMP -o dot.out dot_test.cpp",
-            "-fopenmp -O3 -march=znver2 -DUSE_OPENMP -o dot.out dot_test.cpp",
-            "-fopenmp -O3 -march=znver2 -funroll-all-loops -DUSE_OPENMP -o dot.out dot_test.cpp"
+            "-fopenmp -O1 -DUSE_OPENMP",
+            "-fopenmp -O2 -DUSE_OPENMP",
+            "-fopenmp -O3 -DUSE_OPENMP",
+            "-fopenmp -O3 -mavx2 -DUSE_OPENMP",
+            "-fopenmp -O3 -march=znver2 -DUSE_OPENMP",
+            "-fopenmp -O3 -march=znver2 -funroll-all-loops -DUSE_OPENMP"
         ],
         "executable_name": "dot.out",
+        "list_of_src_files": [
+            "dot_test.cpp"
+        ],
         "tasks_range": [1, 1],
         "thread_range": [1, 3],
         "//perf_regex": "Note that every backslash should be doubled",
