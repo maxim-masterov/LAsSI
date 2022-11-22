@@ -6,7 +6,7 @@ import io_manager
 
 class SrcData:
     _compiler_cmd = ''
-    _compiler_flags = ''
+    _compiler_flags = []
     _src_path = ''
     _recompile = True
     _exec_name =''
@@ -34,8 +34,8 @@ class SrcData:
     def get_exec_name(self):
         return self._exec_name
 
-    def get_compile_cmd(self):
-        return self._compiler_cmd + ' ' + self._compiler_flags
+    def get_compile_cmd(self, flag_id=0):
+        return self.get_compiler_cmd() + ' ' + self.get_compiler_flags()[flag_id]
 
     def compile_src(self):
         cmd = self.get_compile_cmd()
@@ -43,7 +43,7 @@ class SrcData:
         os.system(cmd)
 
     def check_if_exec_exists(self):
-        return os.path.isfile(self._src_path + '/' + self._exec_name)
+        return os.path.isfile(self.get_src_path() + '/' + self.get_exec_name())
 
     def read_config(self, config_file_name):
         """

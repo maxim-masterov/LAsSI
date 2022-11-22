@@ -4,20 +4,27 @@
     ],
     "batch_data": {
         "script_base_name": "test",
-        "partition": "thin",
+        "partition": "sw",
         "nodes": 1,
         "ntasks": 1,
-        "time": 10,
+        "time": 5,
         "has_gpus": false,
         "launcher": "srun",
-        "executable_options": "1000000000 seq"
+        "executable_options": "2000000000 seq"
     },
     "test_setup": {
         "type": "omp",
         "recompile": true,
         "path_to_src": "examples",
         "compile_command": "g++",
-        "compiler_flags": "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
+        "compiler_flags": [
+            "-fopenmp -O1 -DUSE_OPENMP -o dot.out dot_test.cpp",
+            "-fopenmp -O2 -DUSE_OPENMP -o dot.out dot_test.cpp",
+            "-fopenmp -O3 -DUSE_OPENMP -o dot.out dot_test.cpp",
+            "-fopenmp -O3 -mavx2 -DUSE_OPENMP -o dot.out dot_test.cpp",
+            "-fopenmp -O3 -march=znver2 -DUSE_OPENMP -o dot.out dot_test.cpp",
+            "-fopenmp -O3 -march=znver2 -funroll-all-loops -DUSE_OPENMP -o dot.out dot_test.cpp"
+        ],
         "executable_name": "dot.out",
         "tasks_range": [1, 1],
         "thread_range": [1, 3],

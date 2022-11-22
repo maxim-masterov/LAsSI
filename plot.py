@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+import io_manager
+
+
 class Plot:
     def _plot_line(self, data, x_range, highlight, title, x_label='omp_threads', y_label='time, [s]'):
         # set up the canvas
@@ -19,10 +22,10 @@ class Plot:
 
         # visualize and save the plot
         # plt.show()
-        plt.savefig(title + '.png')
-        plt.clf()
+        self._save_file(title)
+        
 
-    def _plot_bar(data, labels, highlight, title, x_label='time, [s]', y_label='flags'):
+    def _plot_bar(self, data, labels, highlight, title, x_label='time, [s]', y_label='flags'):
         # set up the canvas
         plt.xlabel(y_label)
         plt.xlabel(x_label)
@@ -37,8 +40,13 @@ class Plot:
 
         # visualize and save the plot
         # plt.show()
-        plt.savefig(title + '.png')
+        self._save_file(title)
+
+    def _save_file(self, title):
+        output_filename = title + '.png'
+        plt.savefig(output_filename)
         plt.clf()
+        io_manager.print_dbg_info('File ' + output_filename + ' is saved')
 
 
     def plot_compiler_flags(self, data, labels, title, x_label='omp_threads', y_label='time, [s]'):

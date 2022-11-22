@@ -50,4 +50,5 @@ if __name__ == '__main__':
     # exec.parse_output_for_perf(filename, regex)
 
     exec.create_wrk_dir()
-    test.omp_scalability(exec, batch, src, thread_range)
+    # test.omp_scalability(exec, batch, src, thread_range)
+    test.compiler_flags(exec, batch, src)

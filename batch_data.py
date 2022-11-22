@@ -57,7 +57,7 @@ class BatchFileData:
         file.write(text)
         file.close()
 
-    def _assemble_file(self, src, name_postfix=''):
+    def _assemble_file(self, src, name_postfix='', flag_id=0):
         """
         Generate batch script from the provided input
         :param src: Object of ScrData
@@ -85,7 +85,7 @@ class BatchFileData:
         # Compile the code
         file_comp = ''
         if src.get_recompile_flag():
-            file_comp = src.get_compile_cmd() + '\n'
+            file_comp = src.get_compile_cmd(flag_id) + '\n'
         else:
             file_comp = '# do not rebuild sources \n'
 
@@ -126,7 +126,7 @@ class BatchFileData:
     def _assemble_bash_file_name(self, wrk_dir, name_postfix):
         return wrk_dir + '/' + self._script_base_name + name_postfix + '.' + self._bash_file_ext
 
-    def generate_batch_file(self, src, wrk_dir='.', name_postfix=''):
+    def generate_batch_file(self, src, wrk_dir='.', name_postfix='', flag_id=0):
         """
         Generate batch script from the provided input
         :param src: Object of ScrData
@@ -141,14 +141,14 @@ class BatchFileData:
                                                 self._cpus, self._partition,
                                                 self._time)
 
-        full_text, header_str = self._assemble_file(src, name_postfix)
+        full_text, header_str = self._assemble_file(src, name_postfix, flag_id)
 
         full_text = full_text.replace(header_str, file_header)
 
-        io_manager.print_dbg_info('Generated batch script:')
-        io_manager.print_info('----------------------------------------', '')
-        io_manager.print_info(full_text, '')
-        io_manager.print_info('----------------------------------------', '')
+        # io_manager.print_dbg_info('Generated batch script:')
+        # io_manager.print_info('----------------------------------------', '')
+        # io_manager.print_info(full_text, '')
+        # io_manager.print_info('----------------------------------------', '')
 
         batch_file_name = self._assemble_bash_file_name(wrk_dir, name_postfix)
         self.dump_text_to_file(batch_file_name, full_text)
@@ -174,10 +174,10 @@ class BatchFileData:
 
         full_text, header_str = self._assemble_file(src, name_postfix)
 
-        io_manager.print_dbg_info('Generated batch script:')
-        io_manager.print_info('----------------------------------------', '')
-        io_manager.print_info(full_text, '')
-        io_manager.print_info('----------------------------------------', '')
+        # io_manager.print_dbg_info('Generated batch script:')
+        # io_manager.print_info('----------------------------------------', '')
+        # io_manager.print_info(full_text, '')
+        # io_manager.print_info('----------------------------------------', '')
 
         bash_file_name = self._assemble_bash_file_name(wrk_dir, name_postfix)
         self.dump_text_to_file(bash_file_name, full_text)
@@ -190,26 +190,38 @@ class BatchFileData:
         return complete_cmd_call, bash_file_name
 
     def _extract_job_id(self, filename):
-        file = open(filename, 'r')
-        str = file.read()
-        file.close()
+        # file = open(filename, 'r')
+        # str = file.read()
+        # file.close()
+        with open(filename, 'r') as file:
+            str = file.read()
 
         regex = r'Submitted\sbatch\sjob\s*([^\n]+)'
-        srch = re.compile(regex)
-        job_id = srch.search(str).group(1)
+        srch = re.compile(regex, re.MULTILINE)
+        job_id = srch.search(str)
+        if job_id is None:
+            io_manager.print_err_info('Regex search returned None')
+            return None
 
-        return job_id
+        return job_id.group(1)
 
     def _extract_job_state(self, filename):
-        file = open(filename, 'r')
-        str = file.read()
-        file.close()
+        # file = open(filename, 'r')
+        # str = file.read()
+        # file.close()
 
+        with open(filename, 'r') as file:
+            str = file.read()
+
+        # print(filename, str)
         regex = r'State:\s*([^\s]+)'
-        srch = re.compile(regex)
-        state = srch.search(str).group(1)
+        srch = re.compile(regex, re.MULTILINE)
+        state = srch.search(str)
+        if state is None:
+            io_manager.print_err_info('Regex search returned None')
+            return None
         
-        return state
+        return state.group(1)
 
     def submit_batch_script(self, batch_file_name):
         if batch_file_name == '':
@@ -223,8 +235,11 @@ class BatchFileData:
         # Report job ID and exit state
         job_id = self._extract_job_id(self._log_name)
         slurm_file_name = 'slurm-' + job_id + '.out'
+        # print('slurm_file_name: ' + slurm_file_name)
         state = self._extract_job_state(slurm_file_name)
         io_manager.print_dbg_info('Job #' + job_id +' is finished with state: ' + state)
+
+        return job_id
 
     def submit_interactively(self, cmd, bash_file_name):
         if cmd == '':
