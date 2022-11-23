@@ -30,11 +30,11 @@ if __name__ == '__main__':
     thread_range = range(1, 3)
 
     # Read basic configuration
-    batch.read_config(thread_range, 'config.json')
+    batch.read_config('config.json')
     src.read_config('config.json')
 
     # execute tests
     tmp_dir_name = 'tmp'
     exec.create_wrk_dir()
-    # test.omp_scalability(exec, batch, src, thread_range)
+    # test.omp_scalability(exec, batch, src)
     test.compiler_flags(exec, batch, src)

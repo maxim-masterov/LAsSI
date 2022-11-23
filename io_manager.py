@@ -11,7 +11,7 @@ def print_msg_with_header(msg_header, msg):
 
 def print_info(msg, indentation='    '):
     """
-    Print a debug message to terminal
+    Print a regular message to terminal
     :param msg: Message body
     :param indentation: Message indentation
     :return: None

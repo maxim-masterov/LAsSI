@@ -6,25 +6,41 @@ import io_manager
 
 
 class Plot:
-    _dpi = 100
+    """
+    Plot data and save plots in files
+    """
+    _dpi = 100  # default resolution
 
     def _get_dpi(self):
+        """
+        :return: DPI for the output files
+        """
         return self._dpi
 
-    def _plot_line(self, data, x_range, highlight, title, x_label='omp_threads', y_label='time, [s]'):
+    def _plot_line(self, x_points, y_points, highlight, title, x_label='omp_threads', y_label='time, [s]'):
+        """
+        Plot a single line
+        :param y_points: Y-axis points
+        :param x_points: X-axis points
+        :param highlight: Coordinates of a point that should be highlighted
+        :param title: Title of the plot
+        :param x_label: X-axis label
+        :param y_label: Y-axis label
+        :return: None
+        """
         # set up the canvas
         plt.ylabel('time, [s]')
         plt.xlabel(x_label)
         plt.grid()
-        plt.xticks(x_range)
+        plt.xticks(x_points)
         plt.title(title + ' plot')
 
         # plot performance values
-        plt.plot(x_range, data)
+        plt.plot(x_points, y_points)
         # plot minimum (best) value
         plt.plot(highlight[0], highlight[1], marker="o", markersize=15,
-                markeredgecolor="black", markerfacecolor="red",
-                alpha=0.7)
+                 markeredgecolor="black", markerfacecolor="red",
+                 alpha=0.7)
 
         # visualize and save the plot
         # plt.show()
@@ -33,6 +49,16 @@ class Plot:
         plt.clf()
 
     def _plot_bar(self, data, labels, highlight, title, x_label='time, [s]', y_label='flags'):
+        """
+        Plot a horizontal bar plot
+        :param data: Data values
+        :param labels: Data labels
+        :param highlight: Data value of a bar that should be highlighted
+        :param title: Title of the plot
+        :param x_label: X-axis label
+        :param y_label: Y-axis label
+        :return: None
+        """
         # set up the canvas
         plt.xlabel(y_label)
         plt.xlabel(x_label)
@@ -48,7 +74,8 @@ class Plot:
         f.set_figwidth(10)
         f.set_figheight(int(len(data) * 0.5))
         hbars = plt.barh(labels, data, align='center',
-                         color=['steelblue' if (d > highlight[1]) else 'lightcoral' for d in data])
+                         color=['steelblue' if (d > highlight[1])
+                                else 'lightcoral' for d in data])
         plt.bar_label(hbars, label_type='center', fmt='%.4f')
         plt.tight_layout()
 
@@ -59,30 +86,59 @@ class Plot:
         plt.clf()
 
     def _save_file(self, title):
+        """
+        Save plot to the file
+        :param title: Title of the plot (will be used in a file name)
+        :return: None
+        """
         output_filename = title + '.png'
         plt.savefig(output_filename, dpi=self._get_dpi())
         io_manager.print_dbg_info('File ' + output_filename + ' is saved')
 
-
-    def plot_compiler_flags(self, data, labels, title, x_label='omp_threads', y_label='time, [s]'):
+    def plot_compiler_flags(self, data, labels, title, x_label='time, [s]', y_label='flags'):
+        """
+        Generate bar plot for a set of compiler flags
+        :param data: Data values
+        :param labels: Data labels
+        :param title: Plot title
+        :param x_label: X-axis label
+        :param y_label: Y-axis label
+        :return: none
+        """
         best_value = min(data)
         best_pos = labels[data.index(best_value)]
 
-        self._plot_bar(data, labels, (best_pos, best_value), title)
+        self._plot_bar(data, labels, (best_pos, best_value), title, x_label, y_label)
 
+    def plot_scalability(self, x_points, y_points, title, x_label='omp_threads', y_label='time, [s]'):
+        """
+        Generate plot for scalability
+        :param x_points: X-axis points
+        :param y_points: Y-axis points
+        :param title: Title of the plot
+        :param x_label: X-axis label
+        :param y_label: Y-axis label
+        :return: None
+        """
+        best_value = min(y_points)
+        best_pos = x_points[y_points.index(best_value)]
 
-    def plot_scalability(self, data, x_range, title, x_label='omp_threads', y_label='time, [s]'):
-        best_value = min(data)
-        best_pos = x_range[data.index(best_value)]
+        self._plot_line(x_points, y_points, (best_pos, best_value), title, x_label, y_label)
 
-        self._plot_line(data, x_range, (best_pos, best_value), title, x_label, y_label)
-
-
-    def plot_parallel_efficiency(self, data, x_range, title, x_label='omp_threads', y_label='time, [s]'):
-        efficiency = [None]*len(data)
-        for ind, val in enumerate(data):
-            procs = x_range[ind]
-            efficiency[ind] = data[0] / val / procs
+    def plot_parallel_efficiency(self, x_points, y_points, title, x_label='omp_threads', y_label='time, [s]'):
+        """
+        Generate plot for parallel efficiency
+        :param x_points: X-axis points
+        :param y_points: Y-axis points
+        :param title: Title of the plot
+        :param x_label: X-axis label
+        :param y_label: Y-axis label
+        :return: None
+        """
+        efficiency = [None]*len(y_points)
+        for ind, val in enumerate(y_points):
+            procs = x_points[ind]
+            efficiency[ind] = y_points[0] / val / procs
 
         # min_value = min(efficiency)
         # min_pos = efficiency.index(min_value) + 1
@@ -91,14 +147,14 @@ class Plot:
         threshold = 0.020  # == 20% drop
         for ind, val in enumerate(efficiency):
             if ind != 0:
-                grad = abs((best_value - val) / (x_range[ind] - x_range[best_pos-1]))
+                grad = abs((best_value - val) / (x_points[ind] - x_points[best_pos - 1]))
                 if grad <= threshold:
                     best_value = val
-                    best_pos = x_range[ind]
+                    best_pos = x_points[ind]
                 else:
                     break
             else:
                 best_value = val
                 best_pos = ind + 1
 
-        self._plot_line(efficiency, x_range, (best_pos, best_value), title, x_label, y_label)
+        self._plot_line(x_points, efficiency, (best_pos, best_value), title, x_label, y_label)

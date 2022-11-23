@@ -5,42 +5,78 @@ import io_manager
 
 
 class SrcData:
+    """
+    Store all information related to the source code, e.g.: the way to compile it, the way to
+    extract the valuable data from the output file.
+    """
     _compiler_cmd = ''
     _compiler_flags = []
     _src_path = ''
     _recompile = True
-    _exec_name =''
+    _exec_name = ''
     _perf_regex = ''
-    _perf_lable = ''
+    _perf_label = ''
     _list_of_src_files = []
+    _threads_range = (1, 2)
 
     def get_compiler_cmd(self):
+        """
+        :return: Compiler command, e.g. 'g++', 'icc'
+        """
         return self._compiler_cmd
 
     def get_compiler_flags(self):
+        """
+        :return: List of compiler flags
+        """
         return self._compiler_flags
 
     def get_src_path(self):
+        """
+        :return: Path to source files
+        """
         return self._src_path
 
     def get_recompile_flag(self):
+        """
+        :return: 'True' if code should be recompiled, 'False' otherwise
+        """
         return self._recompile
 
     def get_perf_regex(self):
+        """
+        :return: Regular expression to eject the performance values from the
+                 output files
+        """
         return self._perf_regex
 
     def get_perf_label(self):
-        return self._perf_lable
+        """
+        :return:
+        """
+        return self._perf_label
 
     def get_exec_name(self):
+        """
+        :return: Name of the executable
+        """
         return self._exec_name
 
     def get_list_of_src_files(self):
+        """
+        :return: List of source files
+        """
         return self._list_of_src_files
+
+    def get_threads_range(self):
+        """
+        :return: Range of threads
+        """
+        return self._threads_range
 
     def get_compile_cmd(self, compiler_flag_id=0):
         """
-        Return a full command to compile the sources
+        Return a full command to compile the source code
         :param compiler_flag_id: ID of a compiler flag from the config file
         :return: Full compile command
         """
@@ -51,11 +87,18 @@ class SrcData:
         return cmd
 
     def compile_src(self):
+        """
+        Compile source code
+        :return: None
+        """
         cmd = self.get_compile_cmd()
         io_manager.print_dbg_info('Compile sources with: ' + cmd)
         os.system(cmd)
 
     def check_if_exec_exists(self):
+        """
+        :return: 'True' if executable exists, 'False' otherwise
+        """
         return os.path.isfile(self.get_src_path() + '/' + self.get_exec_name())
 
     def read_config(self, config_file_name):
@@ -72,7 +115,12 @@ class SrcData:
         self._recompile = data['test_setup']['recompile']
         self._exec_name = data['test_setup']['executable_name']
         self._perf_regex = data['test_setup']['perf_regex']
-        self._perf_lable = data['test_setup']['perf_lable']
+        self._perf_label = data['test_setup']['perf_label']
         self._list_of_src_files = data['test_setup']['list_of_src_files']
+
+        self._threads_range = range(
+            data['test_setup']['thread_range'][0],
+            data['test_setup']['thread_range'][1]
+        )
 
         f.close()

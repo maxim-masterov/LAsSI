@@ -9,6 +9,7 @@
         "ntasks": 1,
         "time": 5,
         "has_gpus": false,
+        "envars": [],
         "launcher": "srun",
         "executable_options": "2000000000 seq"
     },

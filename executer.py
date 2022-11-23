@@ -7,26 +7,42 @@ import io_manager
 
 
 class Executer:
-    
+    """
+    Contains all execution commands
+    """
     _root_dir_name = os.getenv('PWD')
     _wrk_dir_name = 'wrk'
     _full_wrk_dir_path = os.path.join(_root_dir_name, _wrk_dir_name)
 
     def get_root_dir_name(self):
+        """
+        :return: Root directory of the project
+        """
         return self._root_dir_name
 
     def get_wrk_dir_name(self):
+        """
+        :return: Name of the working directory
+        """
         return self._wrk_dir_name
 
     def get_full_wrk_dir_path(self):
+        """
+        :return: Full path to the working directory
+        """
         return self._full_wrk_dir_path
 
     def create_wrk_dir(self):
+        """
+        Create working directory
+        :return: None
+        """
         self._create_dir(self.get_full_wrk_dir_path())
 
     def create_wrk_copy(self, src_data, dir_name):
         """
         Make a working copy of the source code
+        :return: None
         """
         if src_data.get_recompile_flag():
             self._copy_src(src_data, dir_name)
@@ -34,6 +50,10 @@ class Executer:
             self._copy_bin(src_data, dir_name)
 
     def execute(self):
+        """
+        Execute a test
+        :return:
+        """
         pass
 
     def parse_output_for_perf(self, filename, regex):
@@ -45,12 +65,12 @@ class Executer:
         :return: List of found values
         """
         file = open(filename, 'r')
-        str = file.read()
+        file_content = file.read()
         file.close()
 
         # parse using regex
         srch = re.compile(regex)
-        res = srch.findall(str)
+        res = srch.findall(file_content)
 
         # extract all numbers
         numbers = []
@@ -61,6 +81,14 @@ class Executer:
         return numbers
 
     def _copy_tree(self, src, dst, symlinks=False, ignore=None):
+        """
+        Copy files recursively
+        :param src: Copy from
+        :param dst: Copy to
+        :param symlinks: Include symlinks
+        :param ignore: File to ignore
+        :return: None
+        """
         if os.path.exists(src):
             for item in os.listdir(src):
                 s = os.path.join(src, item)
@@ -74,6 +102,12 @@ class Executer:
             sys.exit(1)
 
     def _copy_src(self, src_data, dir_name):
+        """
+        Copy source files
+        :param src_data: Object of ScrData
+        :param dir_name: Path to source files
+        :return: None
+        """
         src_full_path = src_data.get_src_path()
         dst_full_path = os.path.join(self.get_full_wrk_dir_path(), dir_name)
         io_manager.print_dbg_info('Copy source files to the working directory: '
@@ -82,6 +116,12 @@ class Executer:
         self._copy_tree(src_full_path, dst_full_path)
 
     def _copy_bin(self, src_data, dir_name):
+        """
+        Copy binary file
+        :param src_data: Object of ScrData
+        :param dir_name: Path to the binary file
+        :return: None
+        """
         src_full_path = os.path.join(src_data.get_src_path())
         dst_full_path = os.path.join(self.get_full_wrk_dir_path(), dir_name)
         io_manager.print_dbg_info('Copy a binary file to the working directory: '
@@ -96,6 +136,7 @@ class Executer:
         """
         Create directory
         :param dir_name: Name of the directory to be created
+        :return: None
         """
         full_path = os.path.join(self.get_root_dir_name(), dir_name)
         if not os.path.exists(full_path):

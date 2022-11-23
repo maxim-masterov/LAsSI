@@ -100,6 +100,14 @@ class Statistics:
                 io_manager.print_info(app + ': not found')
 
     def load_modules(self, module_list):
+        """
+        Load modules from the list
+
+                    WARNING: not working!!!
+
+        :param module_list: List of modules
+        :return: None
+        """
         # Load modules
         if len(self.module_list) > 0:
             if self.is_available('module'):
