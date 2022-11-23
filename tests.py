@@ -6,8 +6,17 @@ import io_manager
 
 
 class Tests:
+    # MPI advanced collective calls
+    # key - envar
+    # value - max possible value of the 'key'
+    _impi_collectives = {
+        'I_MPI_ADJUST_ALLREDUCE': 12,
+        'I_MPI_ADJUST_BARRIER': 9,
+        'I_MPI_ADJUST_BCAST': 14,
+        'I_MPI_ADJUST_REDUCE': 11,
+    }
+
     def compiler_flags(self, exec, batch_data, src_data):
-        pass
         ####################
         """
         Run tests with different compiler flags
