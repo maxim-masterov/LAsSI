@@ -3,9 +3,18 @@ import numpy as np
 from plot import Plot
 
 import io_manager
+from batch_data import BatchFileData
+from src_data import SrcData
+from executer import Executer
+from statistics import Statistics
 
 
 class Tests:
+
+    _batch_data = BatchFileData()
+    _src_data = SrcData()
+    _exec = Executer()
+
     # MPI advanced collective calls
     # key - envar
     # value - max possible value of the 'key'
@@ -18,7 +27,17 @@ class Tests:
 
     _threads_range = None
 
-    def compiler_flags(self, exc, batch_data, src_data):
+    def prepare_env(self, filename):
+        # Read basic configuration
+        self._batch_data.read_config(filename)
+        self._src_data.read_config(filename)
+        self._exec.create_wrk_dir()
+
+        self._stats = Statistics()
+        self._stats.report_statistics(self._batch_data.get_modules())
+
+
+    def compiler_flags(self):
         ####################
         """
         Run tests with different compiler flags
@@ -29,7 +48,7 @@ class Tests:
         list_wrk_dirs = []
         list_job_id = []
         counter = 0
-        num_tests = len(src_data.get_compiler_flags())
+        num_tests = len(self._src_data.get_compiler_flags())
         for flag_id in range(num_tests):
             counter += 1
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
@@ -38,16 +57,16 @@ class Tests:
 
             # create temp directory with a wrorking copy of sources
             tmp_dir_name = 'run' + postfix
-            exc.create_wrk_copy(src_data, tmp_dir_name)
-            full_tmp_path = os.path.join(exc.get_full_wrk_dir_path(), tmp_dir_name)
-            batch_file_name = batch_data.generate_job_script(src_data, full_tmp_path, postfix, flag_id)
+            self._exec.create_wrk_copy(self._src_data, tmp_dir_name)
+            full_tmp_path = os.path.join(self._exec.get_full_wrk_dir_path(), tmp_dir_name)
+            batch_file_name = self._batch_data.generate_job_script(self._src_data, full_tmp_path, postfix, flag_id)
 
             # Submit job script
             ## Change to test directory
             os.chdir(full_tmp_path)
-            job_id = batch_data.submit_job_script(batch_file_name)
+            job_id = self._batch_data.submit_job_script(batch_file_name)
             ## Change back to working directory
-            os.chdir(exc.get_root_dir_name())
+            os.chdir(self._exec.get_root_dir_name())
 
             # Skip failing jobs (won't be used in the report)
             if list_job_id != None:
@@ -58,36 +77,12 @@ class Tests:
                                   + ' Done')
 
         # list_wrk_dirs = ['/home/maximm/pragma/CowBerry/wrk/run_flags_0',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_1',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_2',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_3',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_4',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_5',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_6',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_7',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_8',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_9',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_10',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_11',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_12',
-        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_13']
+        #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_1']
         # list_job_id = ['1855911', 
-        #                '1855916',
-        #                '1855921',
-        #                '1855922',
-        #                '1855929',
-        #                '1855961',
-        #                '1855963',
-        #                '1855977',
-        #                '1855984',
-        #                '1855999',
-        #                '1856004',
-        #                '1856005',
-        #                '1856018',
-        #                '1856020']
-        self._report_flags_results(exc, src_data, list_wrk_dirs, list_job_id, src_data.get_compiler_flags())
+        #                '1855916']
+        self._report_flags_results(list_wrk_dirs, list_job_id, self._src_data.get_compiler_flags())
 
-    def omp_scalability(self, exc, batch_data, src_data):
+    def omp_scalability(self):
         """
         Run tests with OpenMP
         :param exc: Object of executer
@@ -97,7 +92,7 @@ class Tests:
         list_wrk_dirs = []
         list_job_id = []
         counter = 0
-        threads_range = src_data.get_threads_range()
+        threads_range = self._src_data.get_threads_range()
         num_tests = int((threads_range.stop - threads_range.start) / threads_range.step)
         for num_threads in threads_range:
             counter += 1
@@ -108,23 +103,23 @@ class Tests:
 
             # create temp directory with a wrorking copy of sources
             tmp_dir_name = 'run' + postfix
-            exc.create_wrk_copy(src_data, tmp_dir_name)
-            full_tmp_path = os.path.join(exc.get_full_wrk_dir_path(), tmp_dir_name)
+            self._exec.create_wrk_copy(self._src_data, tmp_dir_name)
+            full_tmp_path = os.path.join(self._exec.get_full_wrk_dir_path(), tmp_dir_name)
 
             # append and then pop a new envar to the list of already existing envars
-            batch_data.get_envars().append(('OMP_NUM_THREADS', num_threads))
-            batch_data.set_cpus(num_threads)
-            batch_file_name = batch_data.generate_job_script(src_data, full_tmp_path, postfix)
-            batch_data.get_envars().pop()
+            self._batch_data.get_envars().append(('OMP_NUM_THREADS', num_threads))
+            self._batch_data.set_cpus(num_threads)
+            batch_file_name = self._batch_data.generate_job_script(self._src_data, full_tmp_path, postfix)
+            self._batch_data.get_envars().pop()
             # cmd, bash_file_name = batch_data.generate_interactive_cmd(src_data, postfix)
             # batch_data.submit_interactively(cmd, bash_file_name)
 
             # Submit job script
             # Change to test directory
             os.chdir(full_tmp_path)
-            job_id = batch_data.submit_job_script(batch_file_name)
+            job_id = self._batch_data.submit_job_script(batch_file_name)
             # Change back to working directory
-            os.chdir(exc.get_root_dir_name())
+            os.chdir(self._exec.get_root_dir_name())
 
             # Skip failing jobs (won't be used in the report)
             if list_job_id is not None:
@@ -135,17 +130,17 @@ class Tests:
                                   + ' Done')
 
         threads = np.arange(threads_range.start, threads_range.stop, step=threads_range.step)
-        self._report_parallel_results(exc, src_data, list_wrk_dirs, list_job_id, threads)
+        self._report_parallel_results(self._exec, self._src_data, list_wrk_dirs, list_job_id, threads)
 
-    def _report_flags_results(self, exc, src_data, list_wrk_dirs, list_job_id, labels):
+    def _report_flags_results(self, list_wrk_dirs, list_job_id, labels):
         io_manager.print_dbg_info('Parsing results')
         res = []
         for wrk_dir, job_id in zip(list_wrk_dirs, list_job_id):
             output_file = 'slurm-' + str(job_id) + '.out'
             output_file_full_path = os.path.join(wrk_dir, output_file)
             # print(output_file_full_path)
-            res.append(exc.parse_output_for_perf(output_file_full_path,
-                                                 src_data.get_perf_regex())[0][0])
+            res.append(self._exec.parse_output_for_perf(output_file_full_path,
+                                                        self._src_data.get_perf_regex())[0][0])
 
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()

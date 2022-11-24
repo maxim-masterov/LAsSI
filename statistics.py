@@ -68,6 +68,7 @@ class Statistics:
         # Load modules
         # load_modules(module_list)
 
+        io_manager.print_info('Environment:')
         # Check list of apps
         for app, keys in list_of_apps:
             if self.is_available(app):
@@ -98,6 +99,8 @@ class Statistics:
                     self.print_version(app, output)
             else:
                 io_manager.print_info(app + ': not found')
+        
+        io_manager.print_info('')
 
     def load_modules(self, module_list):
         """

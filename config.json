@@ -45,7 +45,7 @@
             "dot_test.cpp"
         ],
         "tasks_range": [1, 1],
-        "thread_range": [1, 8],
+        "thread_range": [1, 2],
         "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
         "perf_label": "time, [s]"
