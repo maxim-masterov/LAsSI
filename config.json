@@ -47,6 +47,6 @@
         "thread_range": [1, 3],
         "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
-        "perf_lable": "time, [s]"
+        "perf_label": "time, [s]"
     }
 }
