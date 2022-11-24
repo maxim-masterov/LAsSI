@@ -120,7 +120,7 @@ class SrcData:
 
         self._threads_range = range(
             data['test_setup']['thread_range'][0],
-            data['test_setup']['thread_range'][1]
+            data['test_setup']['thread_range'][1] + 1   # inclcude upper bound in all loops
         )
 
         f.close()

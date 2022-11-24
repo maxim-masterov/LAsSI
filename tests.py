@@ -98,7 +98,7 @@ class Tests:
         list_job_id = []
         counter = 0
         threads_range = src_data.get_threads_range()
-        num_tests = (threads_range.stop - threads_range.start) / threads_range.step
+        num_tests = int((threads_range.stop - threads_range.start) / threads_range.step)
         for num_threads in threads_range:
             counter += 1
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
@@ -111,9 +111,11 @@ class Tests:
             exc.create_wrk_copy(src_data, tmp_dir_name)
             full_tmp_path = os.path.join(exc.get_full_wrk_dir_path(), tmp_dir_name)
 
-            batch_data.envars = [('OMP_NUM_THREADS', num_threads)]
-            batch_data.cpus = num_threads
+            # append and then pop a new envar to the list of already existing envars
+            batch_data.get_envars().append(('OMP_NUM_THREADS', num_threads))
+            batch_data.set_cpus(num_threads)
             batch_file_name = batch_data.generate_job_script(src_data, full_tmp_path, postfix)
+            batch_data.get_envars().pop()
             # cmd, bash_file_name = batch_data.generate_interactive_cmd(src_data, postfix)
             # batch_data.submit_interactively(cmd, bash_file_name)
 

@@ -66,6 +66,9 @@ class BatchFileData:
         :return: Number of CPUs
         """
         return self._cpus
+    
+    def set_cpus(self, cpus):
+        self._cpus = cpus
 
     def get_partition(self):
         """

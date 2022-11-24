@@ -20,6 +20,7 @@
         "compile_command": "g++",
         "//orig_flags": "-O3 -fopenmp -DUSE_OPENMP",
         "compiler_flags": [
+            "-Ofast -march=znver2 -fopenmp -DUSE_OPENMP",
             "-O0",
             "-O1",
             "-O2",
@@ -44,7 +45,7 @@
             "dot_test.cpp"
         ],
         "tasks_range": [1, 1],
-        "thread_range": [1, 3],
+        "thread_range": [1, 8],
         "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
         "perf_label": "time, [s]"

@@ -29,8 +29,8 @@ class Plot:
         :return: None
         """
         # set up the canvas
-        plt.ylabel('time, [s]')
         plt.xlabel(x_label)
+        plt.ylabel(y_label)
         plt.grid()
         plt.xticks(x_points)
         plt.title(title + ' plot')

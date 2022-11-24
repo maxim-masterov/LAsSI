@@ -36,5 +36,5 @@ if __name__ == '__main__':
     # execute tests
     tmp_dir_name = 'tmp'
     exec.create_wrk_dir()
-    # test.omp_scalability(exec, batch, src)
-    test.compiler_flags(exec, batch, src)
+    test.omp_scalability(exec, batch, src)
+    # test.compiler_flags(exec, batch, src)
