@@ -11,7 +11,7 @@
         "has_gpus": false,
         "envars": [],
         "launcher": "srun",
-        "executable_options": "2000000000 seq"
+        "executable_options": "2000000000"
     },
     "test_setup": {
         "type": "omp",
@@ -45,7 +45,13 @@
             "dot_test.cpp"
         ],
         "tasks_range": [1, 1],
-        "thread_range": [1, 2],
+        "thread_range": {
+            "start": 1,
+            "stop": 128,
+            "step": 1,
+            "multiplier": 2,
+            "//if multiplier is > 1, the 'step' will be ignored": 0
+        },
         "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
         "perf_label": "time, [s]"

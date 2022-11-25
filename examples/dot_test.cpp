@@ -18,6 +18,40 @@
 #include <omp.h>
 #endif
 
+template<typename T>
+class array {
+    T *data;
+    size_t num_elts;
+public:
+    array() {
+        data = nullptr;
+        num_elts = 0;
+    }
+
+    ~array() {
+        clear();
+    }
+
+    void resize(size_t _size) {
+        data = new T [_size];
+        num_elts = _size;
+    }
+
+    void clear() {
+        if (data != nullptr) delete[] data;
+        data = nullptr;
+        num_elts = 0;
+    }
+
+    inline T &operator[](size_t _n) {
+        return data[_n];
+    }
+
+    inline size_t size() {
+        return num_elts;
+    }
+};
+
 inline double getRealTime() {
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -27,59 +61,28 @@ inline double getRealTime() {
 inline std::pair<size_t, std::string> getNumElementsFromCommanLine(int argc,
         char** argv) {
     size_t num_elts = 1e6;
-    std::string type = "rnd";
+    std::string type = "seq";
 
     if (argc >= 2) {
         num_elts = std::atoi(argv[1]);
-        if (argc == 3) type = argv[2];
+        // if (argc == 3) type = argv[2];
     }
 
     return {num_elts, type};
 }
 
-double fillVectorsRandom(std::vector<double> &v1, std::vector<double> &v2) {
-
-    double elp_time;
-    std::random_device rnd_device;
-    std::mt19937 mersenne_engine {rnd_device()};
-    std::uniform_real_distribution<double> dist {0.0, 1.0};
-    auto gen = [&dist, &mersenne_engine]() {
-        return dist(mersenne_engine);
-    };
-
-    elp_time = getRealTime();
-    generate(begin(v1), end(v1), gen);
-    generate(begin(v2), end(v2), gen);
-    elp_time = getRealTime() - elp_time;
-
-    return elp_time;
-}
-
-double fillVectorsSequential(std::vector<double> &v1, std::vector<double> &v2) {
+double fillVectorsSequential(array<double> &v1, array<double> &v2) {
 
     double elp_time;
 
     elp_time = getRealTime();
 #ifdef USE_OPENMP
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
 #endif
     for(size_t n = 0; n < v1.size(); ++n) {
-        v1[n] = v2[n] = n;
+        v1[n] = n;
+        v2[n] = n;
     }
-    elp_time = getRealTime() - elp_time;
-
-    return elp_time;
-}
-
-double fillVectorsUnit(std::vector<double> &v1, std::vector<double> &v2) {
-
-    double elp_time;
-
-    elp_time = getRealTime();
-    for(double &elt : v1)
-        elt = 1.;
-    for(double &elt : v2)
-        elt = 1.;
     elp_time = getRealTime() - elp_time;
 
     return elp_time;
@@ -87,7 +90,8 @@ double fillVectorsUnit(std::vector<double> &v1, std::vector<double> &v2) {
 
 int main(int argc, char** argv) {
 
-    std::vector<double> v1, v2;
+    // std::vector<double> v1, v2;
+    array<double> v1, v2;
     double res = 0.0;
     int error = EXIT_SUCCESS;
     std::pair<size_t, std::string> input_data = getNumElementsFromCommanLine(
@@ -124,15 +128,13 @@ int main(int argc, char** argv) {
     v2.resize(input_data.first);
 
     std::cout << "### Population type: " << input_data.second << "\n";
-    if (input_data.second == "rnd") elp_time = fillVectorsRandom(v1, v2);
-    if (input_data.second == "seq") elp_time = fillVectorsSequential(v1, v2);
-    if (input_data.second == "uni") elp_time = fillVectorsUnit(v1, v2);
+    elp_time = fillVectorsSequential(v1, v2);
     std::cout << "### Vector population time: " << elp_time << " seconds"
             << "\n";
 
     elp_time = getRealTime();
 #ifdef USE_OPENMP
-#pragma omp parallel for reduction(+:res)
+#pragma omp parallel for reduction(+:res) schedule(static)
 #endif
     for(size_t n = 0; n < input_data.first; ++n) {
         res += v1[n] * v2[n];
@@ -143,5 +145,8 @@ int main(int argc, char** argv) {
     std::cout << "### Result: " << res << "\n";
     std::cout << std::endl;
 
+    v1.clear();
+    v2.clear();
+    
     return error;
 }

@@ -92,9 +92,11 @@ class Tests:
         list_wrk_dirs = []
         list_job_id = []
         counter = 0
-        threads_range = self._src_data.get_threads_range()
-        num_tests = int((threads_range.stop - threads_range.start) / threads_range.step)
-        for num_threads in threads_range:
+        # threads_range = self._src_data.get_threads_range()
+        # num_tests = int((threads_range.stop - threads_range.start) / threads_range.step)
+        threads_list = self._src_data.get_threads_list()
+        num_tests = len(threads_list)
+        for num_threads in threads_list:
             counter += 1
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
                                   + ' Starting test')
@@ -129,8 +131,8 @@ class Tests:
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
                                   + ' Done')
 
-        threads = np.arange(threads_range.start, threads_range.stop, step=threads_range.step)
-        self._report_parallel_results(self._exec, self._src_data, list_wrk_dirs, list_job_id, threads)
+        # threads = np.arange(threads_range.start, threads_range.stop, step=threads_range.step)
+        self._report_parallel_results(self._exec, self._src_data, list_wrk_dirs, list_job_id, threads_list)
 
     def _report_flags_results(self, list_wrk_dirs, list_job_id, labels):
         io_manager.print_dbg_info('Parsing results')
