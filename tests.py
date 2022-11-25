@@ -1,7 +1,6 @@
 import os
-import numpy as np
-from plot import Plot
 
+from plot import Plot
 import io_manager
 from batch_data import BatchFileData
 from src_data import SrcData
@@ -131,7 +130,6 @@ class Tests:
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
                                   + ' Done')
 
-        # threads = np.arange(threads_range.start, threads_range.stop, step=threads_range.step)
         self._report_parallel_results(self._exec, self._src_data, list_wrk_dirs, list_job_id, threads_list)
 
     def _report_flags_results(self, list_wrk_dirs, list_job_id, labels):
