@@ -9,9 +9,12 @@
         "ntasks": 1,
         "time": 5,
         "has_gpus": false,
-        "envars": [],
+        "envars": [
+            {"envar": "OMP_PROC_BIND", "value": "true"},
+            {"envar": "OMP_PLACES", "value": "cores"}
+        ],
         "launcher": "srun",
-        "executable_options": "2000000000"
+        "executable_options": "1000000"
     },
     "test_setup": {
         "type": "omp",
@@ -20,7 +23,7 @@
         "compile_command": "g++",
         "//orig_flags": "-O3 -fopenmp -DUSE_OPENMP",
         "compiler_flags": [
-            "-Ofast -march=znver2 -fopenmp -DUSE_OPENMP",
+            "-O3 -fopenmp -DUSE_OPENMP",
             "-O0",
             "-O1",
             "-O2",

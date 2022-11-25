@@ -116,7 +116,9 @@ class BatchFileData:
         self._nodes = data['batch_data']['nodes']
         self._ntasks = data['batch_data']['ntasks']
         self._time = data['batch_data']['time']
-        self._envars = data['batch_data']['envars']
+        
+        for envar in data['batch_data']['envars']:
+            self._envars.append((envar['envar'], envar['value']))
 
         f.close()
 

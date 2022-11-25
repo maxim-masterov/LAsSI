@@ -154,7 +154,7 @@ class Tests:
             output_file_full_path = os.path.join(wrk_dir, output_file)
             # print(output_file_full_path)
             res.append(exc.parse_output_for_perf(output_file_full_path,
-                                                 src_data.get_perf_regex())[0][0])
+                                                 src_data.get_perf_regex())[0])
 
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()

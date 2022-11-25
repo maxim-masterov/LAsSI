@@ -75,9 +75,15 @@ class Executer:
         # extract all numbers
         numbers = []
         for elt in res:
-            number = [float(x) for x in re.findall(r'-?\d+\.?\d*', elt)]
+            # check for numbers written in different formats
+            float_int_num = r'\d+'
+            float_dec_num = r'(\d+\.\d*|\d*\.\d+)'
+            float_sci_num = r'(\d\.?\d*[Ee][+\-]?\d+'
+            full_regex = '-?' + float_sci_num + '|' + float_dec_num + '|' + float_int_num + ')'
+            number = float(re.search(full_regex, elt).group(0))
             numbers.append(number)
         
+        print(filename, numbers)
         return numbers
 
     def _copy_tree(self, src, dst, symlinks=False, ignore=None):

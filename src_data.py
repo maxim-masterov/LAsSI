@@ -17,7 +17,6 @@ class SrcData:
     _perf_regex = ''
     _perf_label = ''
     _list_of_src_files = []
-    # _threads_range = (1, 2)
     _threads_list = []
 
     def get_compiler_cmd(self):
@@ -119,20 +118,14 @@ class SrcData:
         self._perf_label = data['test_setup']['perf_label']
         self._list_of_src_files = data['test_setup']['list_of_src_files']
 
-        # self._threads_range = range(
-        #     data['test_setup']['thread_range']['start'],
-        #     data['test_setup']['thread_range']['stop'] + 1,   # inclcude upper bound in all loops
-        #     data['test_setup']['thread_range']['step']
-        # )
-
         start = data['test_setup']['thread_range']['start']
         stop = data['test_setup']['thread_range']['stop']
         step = data['test_setup']['thread_range']['step']
         multiplier = data['test_setup']['thread_range']['multiplier']
         if multiplier <= 1:
-            self._threads_list = [range(start,
-                                        stop + 1,   # inclcude upper bound in all loops
-                                        step)]
+            self._threads_list = list(range(start,
+                                            stop + 1,   # inclcude upper bound in all loops
+                                            step))
         else:
             val = data['test_setup']['thread_range']['start']
             while True:

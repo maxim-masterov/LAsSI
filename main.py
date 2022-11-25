@@ -1,6 +1,3 @@
-from email.mime import multipart
-import os
-
 from tests import Tests
 
 # GOAL:
@@ -21,20 +18,3 @@ if __name__ == '__main__':
 
     test.prepare_env('config.json')
     test.omp_scalability()
-    # test.compiler_flags()
-
-    # start = 1
-    # stop = 5
-    # step = 1
-    # multiplier = 2
-    # threads_list = []
-
-    # val = start
-    # if multiplier > 1:
-    #     while True:
-    #         threads_list.append(val)
-    #         val *= multiplier
-    #         if val > stop:
-    #             break
-    
-    # print(threads_list)
