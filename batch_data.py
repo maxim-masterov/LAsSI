@@ -304,7 +304,7 @@ class BatchFileData:
         else:
             io_manager.print_dbg_info('Job #' + str(job_id) + ' is finished with state: ' + state)
 
-        return job_id
+        return job_id, state
 
     def submit_interactive_job(self, cmd, bash_file_name):
         """

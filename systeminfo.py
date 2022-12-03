@@ -5,7 +5,7 @@ import re
 import io_manager
 
 
-class Statistics:
+class SystemInfo:
     def get_version_from_text(self, text):
         """
         Get version in a form X.Y.Z from a text
@@ -51,7 +51,7 @@ class Statistics:
                                 stderr=stderr)
         return result.stdout.decode('utf-8')
 
-    def report_statistics(self, module_list):
+    def report_all(self, module_list):
         """
         Report information about the system, compilers and libraries
         :param module_list: List of modules to be loaded

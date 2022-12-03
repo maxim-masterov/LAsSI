@@ -142,19 +142,15 @@ class Plot:
 
         # min_value = min(efficiency)
         # min_pos = efficiency.index(min_value) + 1
-        best_value = 0.0
-        best_pos = 0
-        threshold = 0.020  # == 20% drop
+        last_value = 0.0
+        last_pos = 0
+        threshold = 0.02    # ~= 20% drop
         for ind, val in enumerate(efficiency):
             if ind != 0:
-                grad = abs((best_value - val) / (x_points[ind] - x_points[best_pos - 1]))
-                if grad <= threshold:
-                    best_value = val
-                    best_pos = x_points[ind]
-                else:
+                grad = abs((last_value - val) / (x_points[ind] - x_points[last_pos]))
+                if grad > threshold:
                     break
-            else:
-                best_value = val
-                best_pos = ind + 1
+            last_value = val
+            last_pos = ind
 
-        self._plot_line(x_points, efficiency, (best_pos, best_value), title, x_label, y_label)
+        self._plot_line(x_points, efficiency, (x_points[last_pos], last_value), title, x_label, y_label)
