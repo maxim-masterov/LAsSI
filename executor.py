@@ -3,7 +3,6 @@ import sys
 import re
 import os
 
-from plot import Plot
 import io_manager
 from batch_data import BatchFileData
 from src_data import SrcData
@@ -191,126 +190,45 @@ class Executor:
         else:
             io_manager.print_dbg_info('Directory already exists: ' + full_path)
 
-    # def compiler_flags(self):
-    #     """
-    #     Run tests with different compiler flags
-    #     :param exc: Object of the executor
-    #     :param batch_data: Object of batch file data
-    #     :param src_data: Object of source data
-    #     """
-    #     list_wrk_dirs = []
-    #     list_job_id = []
-    #     counter = 0
-    #     num_tests = len(self._src_data.get_compiler_flags())
-    #     for flag_id in range(num_tests):
-    #         counter += 1
-    #         io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
-    #                               + ' Starting test')
-    #         postfix = '_flags_' + str(flag_id)
-    #
-    #         # create temp directory with a working copy of sources
-    #         tmp_dir_name = 'run' + postfix
-    #         self.create_wrk_copy(self._src_data, tmp_dir_name)
-    #         full_tmp_path = os.path.join(self.get_full_wrk_dir_path(), tmp_dir_name)
-    #         batch_file_name = self._batch_data.generate_job_script(self._src_data, full_tmp_path, postfix, flag_id)
-    #
-    #         # Submit job script
-    #         # Change to test directory
-    #         os.chdir(full_tmp_path)
-    #         job_id = self._batch_data.submit_job_script(batch_file_name)
-    #         # Change back to working directory
-    #         os.chdir(self.get_root_dir_name())
-    #
-    #         # Skip failing jobs (won't be used in the report)
-    #         if list_job_id is not None:
-    #             list_job_id.append(job_id)
-    #             list_wrk_dirs.append(full_tmp_path)
-    #
-    #         io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
-    #                               + ' Done')
-    #
-    #     # list_wrk_dirs = ['/home/maximm/pragma/CowBerry/wrk/run_flags_0',
-    #     #                  '/home/maximm/pragma/CowBerry/wrk/run_flags_1']
-    #     # list_job_id = ['1855911',
-    #     #                '1855916']
-    #     self._report_flags_results(list_wrk_dirs, list_job_id, self._src_data.get_compiler_flags())
-
-    def omp_scalability(self):
+    def run_repetitive_tests(self, batch_file_name, full_path_wrk_dir, test_case,
+                             successful_jobs_id, successful_jobs_dir, successful_jobs_test_case):
         """
-        Run tests with OpenMP
-        :param exc: Object of executor
-        :param batch_data: Object of batch file data
-        :param src_data: Object of source data
+        Repeat tests a given number of times
+        :param batch_file_name: Name of the job script
+        :param full_path_wrk_dir: Full path to the working directory
+        :param test_case: Name of the test case (e.g. number of threads)
+        :param successful_jobs_id: List of successful jobs IDs (in/out)
+        :param successful_jobs_dir: List of successful job working directories (in/out)
+        :param successful_jobs_test_case: st of successful test case names (in/out)
+        :return: None
         """
-        list_wrk_dirs = []
-        list_job_id = []
-        counter = 0
-        # threads_range = self._src_data.get_threads_range()
-        # num_tests = int((threads_range.stop - threads_range.start) / threads_range.step)
-        threads_list = self._src_data.get_threads_list()
-        num_tests = len(threads_list)
-        for num_threads in threads_list:
-            counter += 1
-            io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
-                                  + ' Starting test')
 
-            postfix = '_omp_' + str(num_threads)
-
-            # create temp directory with a wrorking copy of sources
-            tmp_dir_name = 'run' + postfix
-            self.create_wrk_copy(self._src_data, tmp_dir_name)
-            full_tmp_path = os.path.join(self.get_full_wrk_dir_path(), tmp_dir_name)
-
-            # append and then pop a new envar to the list of already existing envars
-            self._batch_data.get_envars().append(('OMP_NUM_THREADS', num_threads))
-            self._batch_data.set_cpus(num_threads)
-            batch_file_name = self._batch_data.generate_job_script(self._src_data, full_tmp_path, postfix)
-            self._batch_data.get_envars().pop()
-            # cmd, bash_file_name = batch_data.generate_interactive_cmd(src_data, postfix)
-            # batch_data.submit_interactively(cmd, bash_file_name)
+        max_rep = self.get_src_data().get_num_repetitions()
+        for rep in range(0, max_rep):
+            io_manager.print_info('Iteration: ' + str(rep + 1) + '/' + str(max_rep))
 
             # Submit job script
             # Change to test directory
-            os.chdir(full_tmp_path)
-            job_id = self._batch_data.submit_job_script(batch_file_name)
+            os.chdir(full_path_wrk_dir)
+            job_id, state = self.get_batch_data().submit_job_script(batch_file_name)
             # Change back to working directory
             os.chdir(self.get_root_dir_name())
 
             # Skip failing jobs (won't be used in the report)
-            if list_job_id is not None:
-                list_job_id.append(job_id)
-                list_wrk_dirs.append(full_tmp_path)
+            if (job_id is not None) and (state != 'CANCELLED'):
+                successful_jobs_id.append(job_id)
+                successful_jobs_dir.append(full_path_wrk_dir)
+                successful_jobs_test_case.append(test_case)
 
-            io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
-                                  + ' Done')
+    def report_start_of_test(self, counter, num_tests):
+        io_manager.print_info('['
+                              + str(counter) + '/'
+                              + str(num_tests)
+                              + '] Starting test')
 
-        self._report_parallel_results(self._src_data, list_wrk_dirs, list_job_id, threads_list)
+    def report_end_of_test(self, counter, num_tests):
+        io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
+                              + ' Done')
 
-    # def _report_flags_results(self, list_wrk_dirs, list_job_id, labels):
-    #     io_manager.print_dbg_info('Parsing results')
-    #     res = []
-    #     for wrk_dir, job_id in zip(list_wrk_dirs, list_job_id):
-    #         output_file = 'slurm-' + str(job_id) + '.out'
-    #         output_file_full_path = os.path.join(wrk_dir, output_file)
-    #         # print(output_file_full_path)
-    #         res.append(self.parse_output_for_perf(output_file_full_path,
-    #                                                     self._src_data.get_perf_regex())[0][0])
-    #
-    #     io_manager.print_dbg_info('Plotting results')
-    #     pl = Plot()
-    #     pl.plot_compiler_flags(res, labels, 'compiler_flags')
-
-    # def _report_parallel_results(self, src_data, list_wrk_dirs, list_job_id, test_range):
-    #     io_manager.print_dbg_info('Parsing results')
-    #     res = []
-    #     for wrk_dir, job_id in zip(list_wrk_dirs, list_job_id):
-    #         output_file = 'slurm-' + str(job_id) + '.out'
-    #         output_file_full_path = os.path.join(wrk_dir, output_file)
-    #         # print(output_file_full_path)
-    #         res.append(self.parse_output_for_perf(output_file_full_path,
-    #                                              src_data.get_perf_regex())[0])
-    #
-    #     io_manager.print_dbg_info('Plotting results')
-    #     pl = Plot()
-    #     pl.plot_scalability(test_range, res, 'scalability')
-    #     pl.plot_parallel_efficiency(test_range, res, 'efficiency', y_label='efficiency')
+    def asemble_postfix(self, key, value):
+        return '_' + str(key) + '_' + str(value)

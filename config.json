@@ -55,7 +55,7 @@
             "multiplier": 2,
             "//if multiplier is > 1, the 'step' will be ignored": 0
         },
-        "num_repetitions": 3,
+        "num_repetitions": 1,
         "//perf_regex": "Note that every backslash should be doubled",
         "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
         "perf_label": "time, [s]"
