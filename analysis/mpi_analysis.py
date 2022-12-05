@@ -11,12 +11,10 @@ class MPIAnalysis(Executor):
     # key - envar
     # value - max possible value of the 'key'
     _impi_collectives = {
-        'I_MPI_ADJUST_ALLREDUCE': 2,
-        'I_MPI_ADJUST_BARRIER': 3,
-        # 'I_MPI_ADJUST_ALLREDUCE': 12,
-        # 'I_MPI_ADJUST_BARRIER': 9,
-        # 'I_MPI_ADJUST_BCAST': 14,
-        # 'I_MPI_ADJUST_REDUCE': 11,
+        'I_MPI_ADJUST_ALLREDUCE': 12,
+        'I_MPI_ADJUST_BARRIER': 9,
+        'I_MPI_ADJUST_BCAST': 14,
+        'I_MPI_ADJUST_REDUCE': 11,
     }
 
     def get_impi_collectives(self):
@@ -43,13 +41,13 @@ class MPIAnalysis(Executor):
             'type': [],
         }
 
-        for type in self.get_impi_collectives():
-            max_range = self.get_impi_collectives()[type] + 1
+        for col_type in self.get_impi_collectives():
+            max_range = self.get_impi_collectives()[col_type] + 1
             for value in range(1, max_range):
                 counter += 1
                 self.report_start_of_test(counter, num_tests)
 
-                test_case = type + '_' + str(value)
+                test_case = col_type + '_' + str(value)
                 postfix = self.asemble_postfix('col_flags', test_case)
 
                 # create temp directory with a working copy of sources
@@ -58,7 +56,7 @@ class MPIAnalysis(Executor):
                 full_tmp_path = os.path.join(self.get_full_wrk_dir_path(), tmp_dir_name)
 
                 # append and then pop a new envar to the list of already existing envars
-                self.get_batch_data().get_envars().append((type, value))
+                self.get_batch_data().get_envars().append((col_type, value))
                 batch_file_name = self.get_batch_data().generate_job_script(self.get_src_data(), full_tmp_path,
                                                                             postfix)
                 self.get_batch_data().get_envars().pop()
@@ -71,4 +69,5 @@ class MPIAnalysis(Executor):
                 self.report_end_of_test(counter, num_tests)
 
         report = GenericReport()
-        report.report_flags_results(self, self.get_src_data(), successful_jobs, successful_jobs['type'])
+        report.report_flags_results(self, self.get_src_data(), successful_jobs,
+                                    successful_jobs['type'], 'collective_calls')

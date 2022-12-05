@@ -73,7 +73,7 @@ class GenericReport:
         pl.plot_scalability(threads, res, 'scalability')
         pl.plot_parallel_efficiency(threads, res, 'efficiency', y_label='efficiency')
 
-    def report_flags_results(self, exc, src_data, successful_jobs, labels):
+    def report_flags_results(self, exc, src_data, successful_jobs, labels, title='flags'):
         """
         Report results of compier flags tests
         :param exc: Object of Executor
@@ -81,6 +81,7 @@ class GenericReport:
         :param successful_jobs: Dictionary of lists from successfully executed jobs.
                                 The keys should be 'id', 'dir' and 'flag_id'
         :param labels: List of compiler flags
+        :param title: Title of the plot and (also) the basename of the output file
         :return: None
         """
         res, unique_labels = self._parse_results(exc, src_data,
@@ -89,4 +90,4 @@ class GenericReport:
                                                  labels)
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()
-        pl.plot_compiler_flags(res, unique_labels, 'compiler_flags')
+        pl.plot_compiler_flags(res, unique_labels, title)

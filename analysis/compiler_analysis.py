@@ -42,4 +42,5 @@ class CompilerAnalysis(Executor):
             self.report_end_of_test(counter, num_tests)
 
         report = GenericReport()
-        report.report_flags_results(self, self.get_src_data(), successful_jobs, successful_jobs['flags'])
+        report.report_flags_results(self, self.get_src_data(), successful_jobs,
+                                    successful_jobs['flags'], 'compiler_flags')
