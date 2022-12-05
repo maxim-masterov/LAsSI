@@ -20,16 +20,6 @@ class Executor:
     _batch_data = BatchFileData()
     _src_data = SrcData()
 
-    # MPI advanced collective calls
-    # key - envar
-    # value - max possible value of the 'key'
-    _impi_collectives = {
-        'I_MPI_ADJUST_ALLREDUCE': 12,
-        'I_MPI_ADJUST_BARRIER': 9,
-        'I_MPI_ADJUST_BCAST': 14,
-        'I_MPI_ADJUST_REDUCE': 11,
-    }
-
     _threads_range = None
 
     def get_src_data(self):
