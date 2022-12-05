@@ -20,6 +20,7 @@ class CompilerAnalysis(Executor):
         successful_jobs = {
             'id': [],
             'dir': [],
+            'flags': [],
         }
 
         for flag_id in range(num_tests):
@@ -35,25 +36,28 @@ class CompilerAnalysis(Executor):
             batch_file_name = self.get_batch_data().generate_job_script(
                 self.get_src_data(), full_tmp_path, postfix, flag_id)
 
-            # Submit job script
-            # Change to test directory
-            os.chdir(full_tmp_path)
-            job_id, state = self.get_batch_data().submit_job_script(batch_file_name)
-            # Change back to working directory
-            os.chdir(self.get_root_dir_name())
+            # Repeat tests given number of times
+            max_rep = self.get_src_data().get_num_repetitions()
+            for rep in range(0, max_rep):
+                io_manager.print_info('Iteration: ' + str(rep + 1) + '/' + str(max_rep))
 
-            # Skip failing jobs (won't be used in the report)
-            if (job_id is not None) and (state != 'CANCELLED'):
-                # list_job_id.append(job_id)
-                # list_wrk_dirs.append(full_tmp_path)
-                successful_jobs['id'].append(job_id)
-                successful_jobs['dir'].append(full_tmp_path)
+                # Submit job script
+                # Change to test directory
+                os.chdir(full_tmp_path)
+                job_id, state = self.get_batch_data().submit_job_script(batch_file_name)
+                # Change back to working directory
+                os.chdir(self.get_root_dir_name())
+
+                # Skip failing jobs (won't be used in the report)
+                if (job_id is not None) and (state != 'CANCELLED'):
+                    # list_job_id.append(job_id)
+                    # list_wrk_dirs.append(full_tmp_path)
+                    successful_jobs['id'].append(job_id)
+                    successful_jobs['dir'].append(full_tmp_path)
+                    successful_jobs['flags'].append(self._src_data.get_compiler_flags()[flag_id])
 
             io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
                                   + ' Done')
 
-        print(successful_jobs['id'])
-        print(successful_jobs['dir'])
         report = GenericReport()
-        report.report_flags_results(self, self.get_src_data(), successful_jobs,
-                                    self._src_data.get_compiler_flags())
+        report.report_flags_results(self, self.get_src_data(), successful_jobs, successful_jobs['flags'])

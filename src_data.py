@@ -18,6 +18,7 @@ class SrcData:
     _perf_label = ''
     _list_of_src_files = []
     _threads_list = []
+    _num_repetitions = 1
 
     def get_compiler_cmd(self):
         """
@@ -74,6 +75,9 @@ class SrcData:
         """
         return self._threads_list
 
+    def get_num_repetitions(self):
+        return self._num_repetitions
+
     def get_compile_cmd(self, compiler_flag_id=0):
         """
         Return a full command to compile the source code
@@ -117,6 +121,10 @@ class SrcData:
         self._perf_regex = data['test_setup']['perf_regex']
         self._perf_label = data['test_setup']['perf_label']
         self._list_of_src_files = data['test_setup']['list_of_src_files']
+        self._num_repetitions = data['test_setup']['num_repetitions']
+
+        if self._num_repetitions < 1:
+            self._num_repetitions = 1
 
         start = data['test_setup']['thread_range']['start']
         stop = data['test_setup']['thread_range']['stop']
