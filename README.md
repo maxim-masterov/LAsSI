@@ -1,5 +1,5 @@
-# CowBerry
-This library automates the performance evaluation and runtime tuning of HPC applications.
+# LAsSi
+LAsSI stands for LAzy analySIs. This tool automates the performance evaluation and runtime tuning of an HPC application.
 
 ## HowTo
 1. Install/load the following Python modules:
