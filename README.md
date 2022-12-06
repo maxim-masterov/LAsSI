@@ -1,5 +1,8 @@
+
+<img src="https://user-images.githubusercontent.com/20205127/205919226-19a957b4-05f7-433d-9861-6aa442a2f76d.png" alt="drawing" style="width:100px;"/>
+
 # LAsSI
-LAsSI stands for "LAzy analySIs". This tool automates the performance evaluation and runtime tuning of an HPC application.
+LAzy analySIs tool automates the performance evaluation and runtime tuning of an HPC application.
 
 ## HowTo
 1. Install/load the following Python modules:
