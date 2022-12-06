@@ -44,3 +44,6 @@ $ python main.py
 | `num_repetitions` | Number of time each test should be repeated. The results will be reported as averages | `"num_repetitions": 1` |
 | `perf_regex` | Regular expression to extract the performance values from the SLURM output file | `"perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"`
 | `perf_label` | Label that should be used to identify the performance in plots | `"perf_label": "time, [s]"` |
+
+---------------------------------------------------------
+Image: <a href="https://www.flaticon.com/free-icon/lassi_4681941?term=lassi&page=1&position=1&page=1&position=1&related_id=4681941&origin=search" title="food and restaurant icons">Flaticon</a>
