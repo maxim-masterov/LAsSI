@@ -13,6 +13,10 @@ class BatchFileData:
     Store information about the batch files
     """
     _modules = []
+
+    _system_name = 'Snellius'
+    _max_cores_pre_node = 128
+
     _script_base_name = None
     _exec_options = None
     _envars = []
@@ -30,6 +34,18 @@ class BatchFileData:
         :return: List of modules
         """
         return self._modules
+
+    def get_system_name(self):
+        """
+        :return: Name of the system
+        """
+        return self._system_name
+
+    def get_max_cores_pre_node(self):
+        """
+        :return: Max number of cores per node on the system
+        """
+        return self._max_cores_pre_node
 
     def get_script_base_name(self):
         """
@@ -55,11 +71,25 @@ class BatchFileData:
         """
         return self._nodes
 
+    def set_nodes(self, nodes):
+        """
+        Set nodes count ('-N' option)
+        :return: None
+        """
+        self._nodes = nodes
+
     def get_ntasks(self):
         """
         :return: Number of tasks
         """
         return self._ntasks
+
+    def set_ntasks(self, ntasks):
+        """
+        Set MPI tasks count ('-n' option)
+        :return: None
+        """
+        self._ntasks = ntasks
 
     def get_cpus(self):
         """
@@ -68,6 +98,10 @@ class BatchFileData:
         return self._cpus
     
     def set_cpus(self, cpus):
+        """
+        Set CPU count ('-c' option)
+        :return: None
+        """
         self._cpus = cpus
 
     def get_partition(self):
@@ -109,6 +143,10 @@ class BatchFileData:
         data = json.load(f)
 
         self._modules = data['modules']
+
+        self._system_name = data['system_data']['name']
+        self._max_cores_pre_node = data['system_data']['max_cores_pre_node']
+
         self._script_base_name = data['batch_data']['script_base_name']
         self._partition = data['batch_data']['partition']
         self._exec_options = data['batch_data']['executable_options']
@@ -298,9 +336,9 @@ class BatchFileData:
         slurm_file_name = 'slurm-' + job_id + '.out'
         state = self._extract_job_state(slurm_file_name)
         if job_id is None:
-            io_manager.print_err_info('Could not parse the job ID. Returned value is None')
+            io_manager.print_err_info('Could not parse the job ID. Returned value is \'None\'')
         elif state is None:
-            io_manager.print_err_info('Could not parse the job state. Returned value is None')
+            io_manager.print_err_info('Could not parse the job state. Returned value is \'None\'')
         else:
             io_manager.print_dbg_info('Job #' + str(job_id) + ' is finished with state: ' + state)
 
@@ -360,7 +398,7 @@ class BatchFileData:
         srch = re.compile(regex, re.MULTILINE)
         job_id = srch.search(file_content)
         if job_id is None:
-            io_manager.print_err_info('Cannot extract job ID. Regex search returned None')
+            io_manager.print_err_info('Cannot extract job ID. Regex search returned \'None\'')
             return None
 
         return job_id.group(1)
@@ -379,7 +417,7 @@ class BatchFileData:
         srch = re.compile(regex, re.MULTILINE)
         state = srch.search(file_content)
         if state is None:
-            io_manager.print_err_info('Cannot extract job state. Regex search returned None')
+            io_manager.print_err_info('Cannot extract the job state. Regex search returned \'None\'')
             return None
 
         return state.group(1)

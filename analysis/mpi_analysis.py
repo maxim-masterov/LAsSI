@@ -1,11 +1,15 @@
 import os
+import math
 
 import io_manager
-from executor import Executor
 from report.generic_report import GenericReport
+from analysis.generic_analysis import GenericAnalysis
 
 
-class MPIAnalysis(Executor):
+class MPIAnalysis(GenericAnalysis):
+    """
+    Class of MPI-based tests
+    """
 
     # MPI advanced collective calls
     # key - envar
@@ -26,9 +30,6 @@ class MPIAnalysis(Executor):
             num_tests += self.get_impi_collectives()[key]
         return num_tests
 
-    """
-    Class of OMP-based tests
-    """
     def run_collectives(self):
         """
         Run tests with different compiler flags
@@ -71,3 +72,19 @@ class MPIAnalysis(Executor):
         report = GenericReport()
         report.report_flags_results(self, self.get_src_data(), successful_jobs,
                                     successful_jobs['type'], 'collective_calls')
+
+    def modify_ntasks(self, step, num_cores=0):
+        if step == 'set':
+            max_tasks_per_node = self.get_batch_data().get_max_cores_pre_node()
+            nodes = int(math.ceil(num_cores / max_tasks_per_node))
+            self.get_batch_data().set_nodes(nodes)
+            self.get_batch_data().set_ntasks(num_cores)
+        elif step == 'remove':
+            pass
+        else:
+            io_manager.print_err_info('Unrecognized step name. Use \'set\' or \'remove\' keywords')
+
+    def run_scalability(self):
+        self.scalability(self.get_src_data().get_tasks_list(),
+                         self.get_src_data().get_type(),
+                         self.modify_ntasks)

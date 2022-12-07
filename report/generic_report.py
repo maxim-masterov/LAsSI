@@ -25,10 +25,13 @@ class GenericReport:
         for wrk_dir, job_id, test in zip(list_wrk_dirs, list_job_id, list_tests):
             output_file = 'slurm-' + str(job_id) + '.out'
             output_file_full_path = os.path.join(wrk_dir, output_file)
-            performance.append(exc.parse_output_for_perf(output_file_full_path,
-                                                                 src_data.get_perf_regex())[0])
+            extracted_data = exc.parse_output_for_perf(output_file_full_path,
+                                                       src_data.get_perf_regex())
+            if not extracted_data:
+                io_manager.print_err_info('Parser returned an empty list. Script will be terminated.')
+                exit(1)
+            performance.append(extracted_data[0])
             test_cases.append(test)
-            # res.append(parsed_data)
 
         res, cases = self._average_results(performance, test_cases)
 
@@ -61,17 +64,17 @@ class GenericReport:
         :param exc: Object of Executor
         :param src_data: Object of SrcData
         :param successful_jobs: Dictionary of lists from successfully executed jobs.
-                                The keys should be 'id', 'dir' and 'threads'
+                                The keys should be 'id', 'dir' and 'cores'
         :return: None
         """
-        res, threads = self._parse_results(exc, src_data,
-                                           successful_jobs['id'],
-                                           successful_jobs['dir'],
-                                           successful_jobs['threads'])
+        res, cores = self._parse_results(exc, src_data,
+                                         successful_jobs['id'],
+                                         successful_jobs['dir'],
+                                         successful_jobs['cores'])
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()
-        pl.plot_scalability(threads, res, 'scalability')
-        pl.plot_parallel_efficiency(threads, res, 'efficiency', y_label='efficiency')
+        pl.plot_scalability(cores, res, 'scalability')
+        pl.plot_parallel_efficiency(cores, res, 'efficiency', y_label='efficiency')
 
     def report_flags_results(self, exc, src_data, successful_jobs, labels, title='flags'):
         """

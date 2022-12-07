@@ -110,7 +110,7 @@ class Plot:
 
         self._plot_bar(data, labels, (best_pos, best_value), title, x_label, y_label)
 
-    def plot_scalability(self, x_points, y_points, title, x_label='omp_threads', y_label='time, [s]'):
+    def plot_scalability(self, x_points, y_points, title, x_label='cores', y_label='time, [s]'):
         """
         Generate plot for scalability
         :param x_points: X-axis points
@@ -125,7 +125,7 @@ class Plot:
 
         self._plot_line(x_points, y_points, (best_pos, best_value), title, x_label, y_label)
 
-    def plot_parallel_efficiency(self, x_points, y_points, title, x_label='omp_threads', y_label='time, [s]'):
+    def plot_parallel_efficiency(self, x_points, y_points, title, x_label='cores', y_label='time, [s]'):
         """
         Generate plot for parallel efficiency
         :param x_points: X-axis points

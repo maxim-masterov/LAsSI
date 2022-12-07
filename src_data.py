@@ -18,7 +18,9 @@ class SrcData:
     _perf_label = ''
     _list_of_src_files = []
     _threads_list = []
+    _tasks_list = []
     _num_repetitions = 1
+    _type = 'no_type'
 
     def get_compiler_cmd(self):
         """
@@ -75,8 +77,17 @@ class SrcData:
         """
         return self._threads_list
 
+    def get_tasks_list(self):
+        """
+        :return: Range of MPI tasks
+        """
+        return self._tasks_list
+
     def get_num_repetitions(self):
         return self._num_repetitions
+
+    def get_type(self):
+        return self._type
 
     def get_compile_cmd(self, compiler_flag_id=0):
         """
@@ -105,6 +116,26 @@ class SrcData:
         """
         return os.path.isfile(self.get_src_path() + '/' + self.get_exec_name())
 
+    def _read_range(self, json_data, range_name):
+        range_list = []
+        start = json_data['test_setup'][range_name]['start']
+        stop = json_data['test_setup'][range_name]['stop']
+        step = json_data['test_setup'][range_name]['step']
+        multiplier = json_data['test_setup'][range_name]['multiplier']
+        if multiplier <= 1:
+            range_list = list(range(start,
+                                    stop + 1,   # include upper bound in all loops
+                                    step))
+        else:
+            val = json_data['test_setup'][range_name]['start']
+            while True:
+                range_list.append(val)
+                val *= multiplier
+                if val > stop:
+                    break
+
+        return range_list
+
     def read_config(self, config_file_name):
         """
         Read JSON config file
@@ -122,24 +153,12 @@ class SrcData:
         self._perf_label = data['test_setup']['perf_label']
         self._list_of_src_files = data['test_setup']['list_of_src_files']
         self._num_repetitions = data['test_setup']['num_repetitions']
+        self._type = data['test_setup']['type']
 
         if self._num_repetitions < 1:
             self._num_repetitions = 1
 
-        start = data['test_setup']['thread_range']['start']
-        stop = data['test_setup']['thread_range']['stop']
-        step = data['test_setup']['thread_range']['step']
-        multiplier = data['test_setup']['thread_range']['multiplier']
-        if multiplier <= 1:
-            self._threads_list = list(range(start,
-                                            stop + 1,   # inclcude upper bound in all loops
-                                            step))
-        else:
-            val = data['test_setup']['thread_range']['start']
-            while True:
-                self._threads_list.append(val)
-                val *= multiplier
-                if val > stop:
-                    break
+        self._threads_list = self._read_range(data, 'thread_range')
+        self._tasks_list = self._read_range(data, 'tasks_range')
 
         f.close()

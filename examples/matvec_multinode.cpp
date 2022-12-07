@@ -74,7 +74,7 @@ int main(int argc, char ** argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &nproc); // get totalnodes
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
   // int n = 30720;
-  int n = 15360;
+  int n = 4*15360;
   int* c = new int[n];
   // compute
   int nlocal = n/nproc;

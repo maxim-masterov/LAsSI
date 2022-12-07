@@ -112,7 +112,7 @@ class Executor:
             number = float(re.search(full_regex, elt).group(0))
             numbers.append(number)
         
-        print(filename, numbers)
+        io_manager.print_dbg_info(filename, numbers)
         return numbers
 
     def _copy_tree(self, src, dst, symlinks=False, ignore=None):
@@ -211,14 +211,17 @@ class Executor:
                 successful_jobs_test_case.append(test_case)
 
     def report_start_of_test(self, counter, num_tests):
-        io_manager.print_info('['
-                              + str(counter) + '/'
-                              + str(num_tests)
-                              + '] Starting test')
+        io_manager.print_prefix('['
+                                + str(counter) + '/'
+                                + str(num_tests)
+                                + ']', ' ')
+        io_manager.print_info('Starting test', '')
+
+    def report_test_info(self, test_name, test_case):
+        io_manager.print_info('Test case: ' + str(test_name) + ' | ' + str(test_case))
 
     def report_end_of_test(self, counter, num_tests):
-        io_manager.print_info('[' + str(counter) + '/' + str(num_tests) + ']'
-                              + ' Done')
+        io_manager.print_info('Done')
 
     def asemble_postfix(self, key, value):
         return '_' + str(key) + '_' + str(value)

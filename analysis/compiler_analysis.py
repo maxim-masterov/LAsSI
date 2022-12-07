@@ -24,6 +24,8 @@ class CompilerAnalysis(Executor):
         for flag_id in range(num_tests):
             counter += 1
             self.report_start_of_test(counter, num_tests)
+            self.report_test_info('compiler flags',
+                                  self._src_data.get_compiler_flags()[flag_id])
 
             postfix = self.asemble_postfix('flags', flag_id)
 

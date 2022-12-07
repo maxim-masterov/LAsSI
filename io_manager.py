@@ -1,4 +1,4 @@
-def print_msg_with_header(msg_header, msg):
+def print_msg_with_header(msg_header, msg1, msg2=''):
     """
     Print a message with a header to terminal
     :param msg_header: Header of the message
@@ -6,8 +6,17 @@ def print_msg_with_header(msg_header, msg):
     :return: None
     """
     print(msg_header, end=' ')
-    print(msg)
+    print(msg1, msg2)
 
+
+def print_prefix(msg, indentation='    '):
+    """
+    Print a prefix message to terminal
+    :param msg: Message body
+    :param indentation: Message indentation
+    :return: None
+    """
+    print(indentation + msg, end = ' ')
 
 def print_info(msg, indentation='    '):
     """
@@ -16,10 +25,10 @@ def print_info(msg, indentation='    '):
     :param indentation: Message indentation
     :return: None
     """
-    print(indentation + msg)
+    print(indentation + '\t' + msg)
 
 
-def print_dbg_info(msg):
+def print_dbg_info(msg1, msg2=''):
     """
     Print a debug message to terminal
     :param msg: Message body
@@ -27,7 +36,7 @@ def print_dbg_info(msg):
     """
     msg_header = "== DEBUG =="
     if __debug__:
-        print_msg_with_header(msg_header, msg)
+        print_msg_with_header(msg_header, msg1, msg2)
 
 
 def print_err_info(msg):

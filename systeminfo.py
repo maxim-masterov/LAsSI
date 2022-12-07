@@ -68,7 +68,8 @@ class SystemInfo:
         # Load modules
         # load_modules(module_list)
 
-        io_manager.print_info('Environment:')
+        io_manager.print_prefix('Environment:', ' ')
+        io_manager.print_info('', '')
         # Check list of apps
         for app, keys in list_of_apps:
             if self.is_available(app):
