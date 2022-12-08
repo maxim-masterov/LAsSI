@@ -190,9 +190,10 @@ class Executor:
         :param successful_jobs_id: List of successful jobs IDs (in/out)
         :param successful_jobs_dir: List of successful job working directories (in/out)
         :param successful_jobs_test_case: st of successful test case names (in/out)
-        :return: None
+        :return: True if no data was appended to 'successful_jobs_X', False otherwise
         """
 
+        failed = True
         max_rep = self.get_src_data().get_num_repetitions()
         for rep in range(0, max_rep):
             io_manager.print_info('Iteration: ' + str(rep + 1) + '/' + str(max_rep))
@@ -209,6 +210,9 @@ class Executor:
                 successful_jobs_id.append(job_id)
                 successful_jobs_dir.append(full_path_wrk_dir)
                 successful_jobs_test_case.append(test_case)
+                failed = False
+        
+        return failed
 
     def report_start_of_test(self, counter, num_tests):
         io_manager.print_prefix('['

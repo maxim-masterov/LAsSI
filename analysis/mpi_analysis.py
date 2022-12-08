@@ -111,7 +111,9 @@ class MPIAnalysis(GenericAnalysis):
                 # Repeat tests a given number of times
                 self.run_repetitive_tests(batch_file_name, full_tmp_path,
                                           test_case,
-                                          successful_jobs['id'], successful_jobs['dir'], successful_jobs['type'])
+                                          successful_jobs['id'], 
+                                          successful_jobs['dir'],
+                                          successful_jobs['type'])
 
                 self.report_end_of_test(counter, num_tests)
 

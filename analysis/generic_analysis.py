@@ -9,7 +9,7 @@ class GenericAnalysis(Executor):
     Class of generic tests
     """
 
-    def scalability(self, cores_list, test_name, modify_batch_script=None):
+    def scalability(self, cores_list, test_name, modify_batch_script=None, no_report=False):
         """
         Generic scalability test
         :param cores_list: List of cores/threads
@@ -24,10 +24,12 @@ class GenericAnalysis(Executor):
         """
         counter = 0
         num_tests = len(cores_list)
-        successful_jobs = {
+        successful_jobs = []
+        local_successful_jobs = {
             'id': [],
             'dir': [],
             'cores': [],
+            'label': 'performance'
         }
 
         for num_cores in cores_list:
@@ -54,9 +56,14 @@ class GenericAnalysis(Executor):
 
             # Repeat tests a given number of times
             self.run_repetitive_tests(batch_file_name, full_tmp_path, num_cores,
-                                      successful_jobs['id'], successful_jobs['dir'], successful_jobs['cores'])
+                                      local_successful_jobs['id'], 
+                                      local_successful_jobs['dir'], 
+                                      local_successful_jobs['cores'])
 
             self.report_end_of_test(counter, num_tests)
 
-        report = GenericReport()
-        report.report_parallel_results(self, self.get_src_data(), successful_jobs)
+        successful_jobs.append(local_successful_jobs)
+
+        if not no_report:
+            report = GenericReport()
+            report.report_parallel_results(self, self.get_src_data(), successful_jobs)

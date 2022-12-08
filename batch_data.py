@@ -3,6 +3,7 @@ import os
 import sys
 import re
 import time
+import subprocess
 
 from version import *
 import io_manager
@@ -28,6 +29,13 @@ class BatchFileData:
     _launcher = 'srun'
     _job_file_ext = 'sh'
     _log_name = 'output.log'
+    _asynchronous = False
+
+    def is_asynchronous(self):
+        """
+        :return: True if sbatch call should be asynchoronous, False otherwise
+        """
+        return self._asynchronous
 
     def get_modules(self):
         """
@@ -176,6 +184,13 @@ class BatchFileData:
         file = open(filename, 'w')
         file.write(text)
         file.close()
+
+    def check_job_state(job_id):
+        cmd = 'sacct -j ' + str(job_id) + ' --format=state'
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        (out, err) = proc.communicate()
+        res = out.decode('utf-8')
+        return res
 
     def _assemble_file(self, src, name_postfix='', compiler_flag_id=0):
         """
@@ -335,18 +350,30 @@ class BatchFileData:
 
         io_manager.print_dbg_info('Submit batch script: ' + job_file_name)
 
-        os.system('sbatch --wait ' + job_file_name + ' &> ' + self.get_log_name())
-
-        # Report job ID and exit state
-        job_id = self._extract_job_id(self.get_log_name())
-        slurm_file_name = 'slurm-' + job_id + '.out'
-        state = self._extract_job_state(slurm_file_name)
-        if job_id is None:
-            io_manager.print_err_info('Could not parse the job ID. Returned value is \'None\'')
-        elif state is None:
-            io_manager.print_err_info('Could not parse the job state. Returned value is \'None\'')
+        # Can use --parsable to get JOB_ID right from the sbatch call:
+        job_id = ''
+        state = ''
+        if self.is_asynchronous():
+            sbathc_call = 'sbatch --parsable ' + job_file_name
+            proc = subprocess.Popen(sbathc_call, stdout=subprocess.PIPE, shell=True)
+            (out, err) = proc.communicate()
+            if out is None:
+                io_manager.print_err_info('Could not get the job ID. Returned value is \'None\'')
+            else:
+                job_id = out.decode('utf-8').strip()
         else:
-            io_manager.print_dbg_info('Job #' + str(job_id) + ' is finished with state: ' + state)
+            os.system('sbatch --wait ' + job_file_name + ' &> ' + self.get_log_name())
+            job_id = self._extract_job_id(self.get_log_name())
+
+            # Report job ID and exit state
+            slurm_file_name = 'slurm-' + job_id + '.out'
+            state = self._extract_job_state(slurm_file_name)
+            if job_id is None:
+                io_manager.print_err_info('Could not parse the job ID. Returned value is \'None\'')
+            elif state is None:
+                io_manager.print_err_info('Could not parse the job state. Returned value is \'None\'')
+            else:
+                io_manager.print_dbg_info('Job #' + str(job_id) + ' is finished with state: ' + state)
 
         return job_id, state
 

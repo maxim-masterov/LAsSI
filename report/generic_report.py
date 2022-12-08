@@ -58,7 +58,7 @@ class GenericReport:
 
         return res, [*combined_lists.keys()]
 
-    def report_parallel_results(self, exc, src_data, successful_jobs):
+    def report_parallel_results(self, exc, src_data, successful_jobs, title_scalability = 'scalability', title_efficiency = 'efficiency'):
         """
         Report results of parallel execution
         :param exc: Object of Executor
@@ -67,14 +67,22 @@ class GenericReport:
                                 The keys should be 'id', 'dir' and 'cores'
         :return: None
         """
-        res, cores = self._parse_results(exc, src_data,
-                                         successful_jobs['id'],
-                                         successful_jobs['dir'],
-                                         successful_jobs['cores'])
+        res = []
+        cores = []
+        key_labels = []
+        for data_set_id in range(len(successful_jobs)):
+            loc_res, loc_cores = self._parse_results(exc, src_data,
+                                                     successful_jobs[data_set_id]['id'],
+                                                     successful_jobs[data_set_id]['dir'],
+                                                     successful_jobs[data_set_id]['cores'])
+            res.append(loc_res)
+            cores.append(loc_cores)
+            key_labels.append(successful_jobs[data_set_id]['label'])
+            
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()
-        pl.plot_scalability(cores, res, 'scalability')
-        pl.plot_parallel_efficiency(cores, res, 'efficiency', y_label='efficiency')
+        pl.plot_scalability(cores, res, title_scalability, key_labels)
+        pl.plot_parallel_efficiency(cores, res, title_efficiency, key_labels, y_label='efficiency')
 
     def report_flags_results(self, exc, src_data, successful_jobs, labels, title='flags'):
         """
