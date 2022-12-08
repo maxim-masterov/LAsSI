@@ -1,8 +1,8 @@
 import os
 
-import io_manager
 from executor import Executor
 from report.generic_report import GenericReport
+
 
 class GenericAnalysis(Executor):
     """

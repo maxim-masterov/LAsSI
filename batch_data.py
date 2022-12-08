@@ -122,6 +122,12 @@ class BatchFileData:
         """
         return self._launcher
 
+    def set_launcher(self, launcher):
+        """
+        :return: Launcher name
+        """
+        self._launcher = launcher
+
     def get_job_file_ext(self):
         """
         :return: Job file extension
