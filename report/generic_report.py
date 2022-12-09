@@ -65,7 +65,7 @@ class GenericReport:
         :param src_data: Object of SrcData
         :param successful_jobs: Dictionary of lists from successfully executed jobs.
                                 The keys should be 'id', 'dir' and 'cores'
-        :return: None
+        :return: Tuple of lists with number of cores and parsed results
         """
         res = []
         cores = []
@@ -84,6 +84,8 @@ class GenericReport:
         pl.plot_scalability(cores, res, title_scalability, key_labels)
         pl.plot_parallel_efficiency(cores, res, title_efficiency, key_labels, y_label='efficiency')
 
+        return cores, res
+
     def report_flags_results(self, exc, src_data, successful_jobs, labels, title='flags'):
         """
         Report results of compier flags tests
@@ -93,7 +95,7 @@ class GenericReport:
                                 The keys should be 'id', 'dir' and 'flag_id'
         :param labels: List of compiler flags
         :param title: Title of the plot and (also) the basename of the output file
-        :return: None
+        :return: Tuple of lists with labels and parsed results
         """
         res, unique_labels = self._parse_results(exc, src_data,
                                                  successful_jobs['id'],
@@ -102,3 +104,5 @@ class GenericReport:
         io_manager.print_dbg_info('Plotting results')
         pl = Plot()
         pl.plot_compiler_flags(res, unique_labels, title)
+
+        return unique_labels, res

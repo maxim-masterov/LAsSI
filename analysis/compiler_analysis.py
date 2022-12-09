@@ -44,5 +44,18 @@ class CompilerAnalysis(Executor):
             self.report_end_of_test(counter, num_tests)
 
         report = GenericReport()
-        report.report_flags_results(self, self.get_src_data(), successful_jobs,
-                                    successful_jobs['flags'], 'compiler_flags')
+        flags, res = report.report_flags_results(self, self.get_src_data(), successful_jobs,
+                                                 successful_jobs['flags'], 'compiler_flags')
+
+
+        self.write_results_to_log(successful_jobs, 
+                                [
+                                    {
+                                        'name': 'flags', 
+                                        'list': flags
+                                    },
+                                    {
+                                        'name': 'results',
+                                        'list': res
+                                    }
+                                ])

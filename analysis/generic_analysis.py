@@ -1,4 +1,5 @@
 import os
+import json
 
 from executor import Executor
 from report.generic_report import GenericReport
@@ -8,6 +9,14 @@ class GenericAnalysis(Executor):
     """
     Class of generic tests
     """
+    _log_file = 'output.log'
+
+    def write_results_to_log(self, successful_jobs, results_dict):
+        json_data = {}
+        json_data['successful_jobs'] = successful_jobs
+        json_data['results'] = results_dict
+        with open(self._log_file, 'w') as file:
+            file.write(json.dumps(json_data, indent=4))
 
     def scalability(self, cores_list, test_name, modify_batch_script=None, no_report=False):
         """
@@ -64,6 +73,20 @@ class GenericAnalysis(Executor):
 
         successful_jobs.append(local_successful_jobs)
 
+        cores = []
+        res = []
         if not no_report:
             report = GenericReport()
-            report.report_parallel_results(self, self.get_src_data(), successful_jobs)
+            cores, res = report.report_parallel_results(self, self.get_src_data(), successful_jobs)
+
+        self.write_results_to_log(successful_jobs, 
+                                [
+                                    {
+                                        'name': 'cores', 
+                                        'list': cores
+                                    },
+                                    {
+                                        'name': 'results',
+                                        'list': res
+                                    }
+                                ])

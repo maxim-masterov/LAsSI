@@ -1,4 +1,5 @@
 import os
+from re import S
 
 import io_manager
 from analysis.generic_analysis import GenericAnalysis
@@ -104,4 +105,16 @@ class OMPAnalysis(GenericAnalysis):
                 successful_jobs.append(local_successful_jobs)
 
         report = GenericReport()
-        report.report_parallel_results(self, self.get_src_data(), successful_jobs)
+        cores, res = report.report_parallel_results(self, self.get_src_data(), successful_jobs)
+
+        self.write_results_to_log(successful_jobs, 
+                                [
+                                    {
+                                        'name': 'cores', 
+                                        'list': cores
+                                    },
+                                    {
+                                        'name': 'results',
+                                        'list': res
+                                    }
+                                ])

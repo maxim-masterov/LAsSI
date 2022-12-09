@@ -118,8 +118,20 @@ class MPIAnalysis(GenericAnalysis):
                 self.report_end_of_test(counter, num_tests)
 
         report = GenericReport()
-        report.report_flags_results(self, self.get_src_data(), successful_jobs,
-                                    successful_jobs['type'], 'collective_calls')
+        flags, res = report.report_flags_results(self, self.get_src_data(), successful_jobs,
+                                                         successful_jobs['type'], 'collective_calls')
+
+        self.write_results_to_log(successful_jobs, 
+                                [
+                                    {
+                                        'name': 'flags', 
+                                        'list': flags
+                                    },
+                                    {
+                                        'name': 'results',
+                                        'list': res
+                                    }
+                                ])
 
     def modify_ntasks(self, step, num_cores=0):
         if step == 'set':
