@@ -424,7 +424,7 @@ class BatchFileData:
         :return: Job ID
         """
         self._wait_for_file(filename)
-        with open(filename, 'rb') as file:
+        with open(filename, 'r') as file:
             file_content = file.read()
 
         regex = r'Submitted\sbatch\sjob\s*([^\n]+)'
@@ -443,7 +443,7 @@ class BatchFileData:
         :return: Job state
         """
         self._wait_for_file(filename)
-        with open(filename, 'rb') as file:
+        with open(filename, 'r', encoding='latin1') as file:
             file_content = file.read()
 
         regex = r'State:\s*([^\s]+)'
