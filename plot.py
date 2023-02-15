@@ -197,7 +197,7 @@ class Plot:
             loc_y_points = y_points[data_set_id]
             ref_y_point = loc_y_points[0]
             for ind, val in enumerate(loc_y_points):
-                procs = loc_x_points[ind]
+                procs = loc_x_points[ind] / loc_x_points[0]
                 efficiency[data_set_id][ind] = ref_y_point / val / procs
 
             last_value = 0.0
