@@ -93,8 +93,8 @@ class Executor:
         :param regex: Regular expression to look for in the file
         :return: List of found values
         """
-        file = open(filename, 'r')
-        file_content = file.read()
+        with open(filename, 'r', encoding='latin1') as file:
+            file_content = file.read()
         file.close()
 
         # parse using regex

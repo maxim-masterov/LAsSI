@@ -28,10 +28,10 @@ class GenericReport:
             extracted_data = exc.parse_output_for_perf(output_file_full_path,
                                                        src_data.get_perf_regex())
             if not extracted_data:
-                io_manager.print_err_info('Parser returned an empty list. Script will be terminated.')
-                exit(1)
-            performance.append(extracted_data[0])
-            test_cases.append(test)
+                io_manager.print_err_info('Parser returned an empty list. Data will not be appended.')
+            else:
+                performance.append(extracted_data[0])
+                test_cases.append(test)
 
         res, cases = self._average_results(performance, test_cases)
 
