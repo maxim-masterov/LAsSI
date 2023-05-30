@@ -21,12 +21,13 @@ $ python main.py
 
 | Name                 | Description                                                                                   | Example                                                  |
 |----------------------|-----------------------------------------------------------------------------------------------|----------------------------------------------------------|
-| `modules`            | List of modules that are required by the application                                         | `"modules": ["2022", "foss/2022a"]`                      |
-| `batch_data`         | Holds information about the job script defaults                                              |                                                          |
-| `script_base_name`   | Base name of the job script. The extension will be added automatically                       | `"script_base_name": "test"`                             |
+| `modules`            | List of modules that are required by the application                                          | `"modules": ["2022", "foss/2022a"]`                      |
+| `batch_data`         | Holds information about the job script defaults                                               |                                                          |
+| `script_base_name`   | Base name of the job script. The extension will be added automatically                        | `"script_base_name": "test"`                             |
 | `partition`          | Name of the SLURM partition                                                                   | `"partition": "sw"`                                      |
 | `nodes`              | Default number of nodes per job                                                               | `"nodes": 1`                                             |
 | `ntasks`             | Default number of MPI tasks per job                                                           | `"ntasks": 1`                                            |
+| `cpus`               | Default number of threade per MPI task                                                        | `"cpus": 1`                                              |
 | `time`               | Time constraint per job                                                                       | `"time": 5`                                              |
 | `envars`             | List of dictionaries with environment variable that should be added to the job script         | `"envars": [{"envar": "OMP_PROC_BIND", "value": "true"}` |
 | `launcher`           | Name of the launcher that should be used to run the executable                                | `"launcher": "srun"`                                     |
@@ -42,7 +43,8 @@ $ python main.py
 | `tasks_range` | Range of MPI tasks to use during the scalability test | `"tasks_range": [1, 1]` |
 | `thread_range` | Range of OpenMP threads to use during the scalability test. Note that if `multiplier` is greater than `1`, then the `step` option will be ignored`. | `"thread_range": {"start": 1, "stop": 64, "step": 1, "multiplier": 2}` |
 | `num_repetitions` | Number of time each test should be repeated. The results will be reported as averages | `"num_repetitions": 1` |
-| `perf_regex` | Regular expression to extract the performance values from the SLURM output file | `"perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"`
+| `perf_regex` | Regular expression to extract the performance values from the SLURM output file | `"perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds"` |
+| `use_only_last_value` | Use onbly last value from the parsed output to determine the performance | `"use_only_last_value": true` |
 | `perf_label` | Label that should be used to identify the performance in plots | `"perf_label": "time, [s]"` |
 
 ---------------------------------------------------------
