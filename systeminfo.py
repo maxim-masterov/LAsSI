@@ -6,6 +6,14 @@ import io_manager
 
 
 class SystemInfo:
+    _list_of_mpi_vendors = ['Intel', 'Open MPI']
+
+    def get_list_of_mpi_vendors(self):
+        """
+        :return: List of known MPI vendors
+        """
+        return self._list_of_mpi_vendors
+
     def get_version_from_text(self, text):
         """
         Get version in a form X.Y.Z from a text
@@ -55,7 +63,8 @@ class SystemInfo:
         """
         Report information about the system, compilers and libraries
         :param module_list: List of modules to be loaded
-        :return: None
+        :return: Name of the the MPI vendor, or an empty string if MPI library
+                 was not detected
         """
         list_of_apps = [('uname', '-o'), ('uname', '-r'), ('uname', '-m'),
                         ('module', '--version'), ('mpirun', '--version'),
@@ -63,13 +72,14 @@ class SystemInfo:
                         ('icc', '--version'), ('icpc', '--version'), ('ifort', '--version'),
                         ('clang', '--version'), ('clang++', '--version'), ('flang', '--version'),
                         ('python', '--version'), ('python2', '--version'), ('python3', '--version')]
-        list_of_mpi_vendors = ['Intel', 'Open MPI']
 
         # Load modules
         # load_modules(module_list)
 
         io_manager.print_prefix('Environment:', ' ')
         io_manager.print_info('', '')
+        mpi_vendor = ''
+
         # Check list of apps
         for app, keys in list_of_apps:
             if self.is_available(app):
@@ -94,14 +104,17 @@ class SystemInfo:
                     else:
                         output = self.execute_app(app, keys)
                     if app == 'mpirun':
-                        for vendor in list_of_mpi_vendors:
+                        for vendor in self._list_of_mpi_vendors:
                             if vendor in output:
+                                mpi_vendor = vendor
                                 io_manager.print_info(app + ' vendor: ' + vendor)
                     self.print_version(app, output)
             else:
                 io_manager.print_info(app + ': not found')
         
         io_manager.print_info('')
+        
+        return mpi_vendor
 
     def load_modules(self, module_list):
         """

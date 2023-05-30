@@ -22,6 +22,8 @@ class Executor:
 
     _threads_range = None
 
+    _mpi_vendor = ''
+
     def get_src_data(self):
         return self._src_data
 
@@ -46,6 +48,12 @@ class Executor:
         """
         return self._full_wrk_dir_path
 
+    def get_mpi_vendor(self):
+        """
+        :return: Name of the MPI vendor (see SystemInfo.get_list_of_mpi_vendors())
+        """
+        return self._mpi_vendor
+
     def prepare_env(self, filename):
         """
         Read basic configuration from the configuration file and
@@ -66,7 +74,7 @@ class Executor:
         :return: None
         """
         sys_info = SystemInfo()
-        sys_info.report_all(self._batch_data.get_modules())
+        self._mpi_vendor = sys_info.report_all(self._batch_data.get_modules())
 
     def create_wrk_dir(self):
         """
