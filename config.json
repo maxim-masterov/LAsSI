@@ -1,53 +1,48 @@
 {
     "modules": [
-        "2022", "foss/2022a"
+        "2021", "OpenFOAM/9-foss-2021a", "Eigen/3.3.9-GCCcore-10.3.0"
     ],
+    "system_data": {
+        "name": "Snellius",
+        "max_cores_pre_node": 128
+    },
     "batch_data": {
-        "script_base_name": "test",
-        "partition": "sw",
+        "script_base_name": "scriptSnellius",
+        "partition": "thin",
         "nodes": 1,
-        "ntasks": 1,
-        "time": 5,
+        "ntasks": 8,
+        "cpus": 4,
+        "time": 30,
         "has_gpus": false,
         "envars": [
             {"envar": "OMP_PROC_BIND", "value": "true"},
-            {"envar": "OMP_PLACES", "value": "cores"}
+            {"envar": "OMP_PLACES", "value": "threads"},
+            {"envar": "OMP_NUM_THREADS", "value": "4"}
         ],
-        "launcher": "srun",
-        "executable_options": "1000000"
+        "launcher": "bash",
+        "executable_options": ""
     },
     "test_setup": {
-        "type": "omp",
-        "recompile": true,
-        "path_to_src": "examples",
-        "compile_command": "g++",
+        "//available_types": ["compiler_flags", "omp_scalability", "omp_affinity", "mpi_scalability", "mpi_collective"],
+        "type": "mpi_collective",
+        "recompile": false,
+        "path_to_src": "/projects/0/reaxpro/Software/cOF_LAsSI",
+        "compile_command": "",
         "//orig_flags": "-O3 -fopenmp -DUSE_OPENMP",
         "compiler_flags": [
-            "-O3 -fopenmp -DUSE_OPENMP",
-            "-O0",
-            "-O1",
-            "-O2",
-            "-O3",
-            "-Ofast",
-            "-O3 -msse4.2",
-            "-O3 -mavx2",
-            "-O3 -march=znver2",
-            "-O3 -march=native",
-            "-O3 -march=znver2 -flto",
-            "-O3 -march=znver2 -fprefetch-loop-arrays --param prefetch-latency=300",
-            "-O3 -march=znver2 -fprefetch-loop-arrays --param prefetch-latency=300 -flto",
-            "-O3 -march=znver2 -ftree-vectorize",
-            "-O3 -march=znver2 -fprefetch-loop-arrays",
-            "-O3 -march=znver2 -funroll-all-loops",
-            "-Ofast -march=znver2",
-            "-Ofast -march=znver2 -funroll-all-loops",
-            "-Ofast -march=znver2 -funroll-all-loops -ftree-vectorize -fprefetch-loop-arrays -flto"
+            "-O3 -fopenmp"
         ],
-        "executable_name": "dot.out",
+        "executable_name": "base_script.sh",
         "list_of_src_files": [
-            "dot_test.cpp"
+            ""
         ],
-        "tasks_range": [1, 1],
+        "tasks_range":  {
+            "start": 32,
+            "stop": 32,
+            "step": 1,
+            "multiplier": 2,
+            "//if multiplier is > 1, the 'step' will be ignored": 0
+        },
         "thread_range": {
             "start": 1,
             "stop": 128,
@@ -55,9 +50,10 @@
             "multiplier": 2,
             "//if multiplier is > 1, the 'step' will be ignored": 0
         },
-        "num_repetitions": 1,
+        "num_repetitions": 3,
         "//perf_regex": "Note that every backslash should be doubled",
-        "perf_regex": "### Dot-product time:\\s+\\S+\\s+seconds",
+        "////perf_regex": "DFlowFM\t:\\s+\\S+\\s+sec",
+        "perf_regex": "ExecutionTime =\\s+\\S+\\s+ s\\s+",
         "perf_label": "time, [s]"
     }
 }
