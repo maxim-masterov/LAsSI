@@ -4,6 +4,7 @@ import math
 import io_manager
 from report.generic_report import GenericReport
 from analysis.generic_analysis import GenericAnalysis
+from systeminfo import SystemInfo
 
 
 class MPIAnalysis(GenericAnalysis):
@@ -53,14 +54,25 @@ class MPIAnalysis(GenericAnalysis):
         impi_wrappers = ['mpiicc', 'mpiicpc', 'mpiifort']
         mpi_coll_dict = None
         mpi_vendor = ''
+        # Fixme: the vendor should be determined using "mpirun --version"
         compiler_cmd = self.get_src_data().get_compiler_cmd()
-        if compiler_cmd in ompi_wrappers:
-            mpi_coll_dict = self.get_ompi_collectives()
-            mpi_vendor = 'OpenMPI'
-        elif compiler_cmd in impi_wrappers:
-            mpi_coll_dict = self.get_impi_collectives()
-            mpi_vendor = 'IMPI'
+        # If 'compiler_cmd' is empty - guess the vendor using 'mpirun --version'
+        if compiler_cmd == '':
+            mpi_vendor = self.get_mpi_vendor()
+            if mpi_vendor == 'Intel':
+                mpi_coll_dict = self.get_impi_collectives()
+                mpi_vendor = 'IMPI'
+            else:
+                mpi_coll_dict = self.get_ompi_collectives()
+                mpi_vendor = 'OpenMPI'
         else:
+            if compiler_cmd in ompi_wrappers:
+                mpi_coll_dict = self.get_ompi_collectives()
+                mpi_vendor = 'OpenMPI'
+            elif compiler_cmd in impi_wrappers:
+                mpi_coll_dict = self.get_impi_collectives()
+                mpi_vendor = 'IMPI'
+        if mpi_vendor == '':
             io_manager.print_err_info('Cannot determine vendor of the MPI compiler wrapper: ' + str(compiler_cmd))
             exit(1)
 
