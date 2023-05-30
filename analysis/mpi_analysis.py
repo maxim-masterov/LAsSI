@@ -7,6 +7,10 @@ from analysis.generic_analysis import GenericAnalysis
 from systeminfo import SystemInfo
 
 
+_IMPINAME = 'IMPI'
+_OMPINAME = 'OpenMPI'
+
+
 class MPIAnalysis(GenericAnalysis):
     """
     Class of MPI-based tests
@@ -56,22 +60,24 @@ class MPIAnalysis(GenericAnalysis):
         mpi_vendor = ''
         # Fixme: the vendor should be determined using "mpirun --version"
         compiler_cmd = self.get_src_data().get_compiler_cmd()
+
         # If 'compiler_cmd' is empty - guess the vendor using 'mpirun --version'
         if compiler_cmd == '':
             mpi_vendor = self.get_mpi_vendor()
             if mpi_vendor == 'Intel':
                 mpi_coll_dict = self.get_impi_collectives()
-                mpi_vendor = 'IMPI'
+                mpi_vendor = _IMPINAME
             else:
                 mpi_coll_dict = self.get_ompi_collectives()
-                mpi_vendor = 'OpenMPI'
+                mpi_vendor = _OMPINAME
         else:
-            if compiler_cmd in ompi_wrappers:
-                mpi_coll_dict = self.get_ompi_collectives()
-                mpi_vendor = 'OpenMPI'
-            elif compiler_cmd in impi_wrappers:
+            if compiler_cmd in impi_wrappers:
                 mpi_coll_dict = self.get_impi_collectives()
-                mpi_vendor = 'IMPI'
+                mpi_vendor = _IMPINAME
+            elif compiler_cmd in ompi_wrappers:
+                mpi_coll_dict = self.get_ompi_collectives()
+                mpi_vendor = _OMPINAME
+
         if mpi_vendor == '':
             io_manager.print_err_info('Cannot determine vendor of the MPI compiler wrapper: ' + str(compiler_cmd))
             exit(1)
@@ -85,7 +91,7 @@ class MPIAnalysis(GenericAnalysis):
         }
 
         start_range = 1
-        if mpi_vendor == 'OpenMPI':
+        if mpi_vendor == _OMPINAME:
             start_range = 0
             num_tests += len(mpi_coll_dict)
 
@@ -103,23 +109,11 @@ class MPIAnalysis(GenericAnalysis):
                 self.create_wrk_copy(self.get_src_data(), tmp_dir_name)
                 full_tmp_path = os.path.join(self.get_full_wrk_dir_path(), tmp_dir_name)
 
-                # append and then pop a new envar to the list of already existing envars
-                default_launcher = self.get_batch_data().get_launcher()
-                # if mpi_vendor == 'IMPI':
-                #     self.get_batch_data().get_envars().append((col_type, value))
-                # elif mpi_vendor == 'OpenMPI':
-                #     # Force modify the default launcher if it was set to 'srun'
-                #     if default_launcher == 'srun':
-                #         default_launcher = 'mpirun'
-                #     mod_launcher = default_launcher + ' --mca ' + col_type + ' ' + str(value) + ' '
-                #     self.get_batch_data().set_launcher(mod_launcher)
+                # Append and then pop a new envar to the list of already existing envars
                 self.get_batch_data().get_envars().append((col_type, value))
                 batch_file_name = self.get_batch_data().generate_job_script(self.get_src_data(), full_tmp_path,
                                                                             postfix)
-                if mpi_vendor == 'IMPI':
-                    self.get_batch_data().get_envars().pop()
-                elif mpi_vendor == 'OpenMPI':
-                    self.get_batch_data().set_launcher(default_launcher)
+                self.get_batch_data().get_envars().pop()
 
                 # Repeat tests a given number of times
                 self.run_repetitive_tests(batch_file_name, full_tmp_path,

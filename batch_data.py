@@ -73,6 +73,12 @@ class BatchFileData:
         """
         return self._envars
 
+    def set_envars(self, envars):
+        """
+        :return: Set environment variables
+        """
+        self._envars = envars
+
     def get_nodes(self):
         """
         :return: Number of nodes
