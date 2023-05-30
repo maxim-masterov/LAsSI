@@ -53,10 +53,10 @@ class SrcData:
                  output files
         """
         return self._perf_regex
-    
+
     def get_use_only_last_value(self):
         """
-        :return: 'True' if only the last value from the performance data should 
+        :return: 'True' if only the last value from the performance data should
                  be reported
         """
         return self._use_only_last_value
