@@ -30,7 +30,13 @@ class GenericReport:
             if not extracted_data:
                 io_manager.print_err_info('Parser returned an empty list. Data will not be appended.')
             else:
-                performance.append(extracted_data[0])
+                if src_data.get_use_only_last_value():
+                    # If only the last point should be used, then simply append it
+                    # to the list
+                    performance.append(extracted_data[-1])
+                else:
+                    # Otherwise, find the mean of all values and append only it
+                    performance.append(sum(extracted_data) / len(extracted_data))
                 test_cases.append(test)
 
         res, cases = self._average_results(performance, test_cases)

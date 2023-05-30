@@ -108,7 +108,6 @@ class Executor:
         # parse using regex
         srch = re.compile(regex)
         res = srch.findall(file_content)
-
         # extract all numbers
         numbers = []
         for elt in res:

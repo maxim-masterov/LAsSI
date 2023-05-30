@@ -53,7 +53,8 @@
         "num_repetitions": 3,
         "//perf_regex": "Note that every backslash should be doubled",
         "////perf_regex": "DFlowFM\t:\\s+\\S+\\s+sec",
-        "perf_regex": "ExecutionTime =\\s+\\S+\\s+ s\\s+",
+        "perf_regex": "ExecutionTime\\s+=\\s+\\S+\\s+s",
+        "use_only_last_value": true,
         "perf_label": "time, [s]"
     }
 }

@@ -15,6 +15,7 @@ class SrcData:
     _recompile = True
     _exec_name = ''
     _perf_regex = ''
+    _use_only_last_value = False
     _perf_label = ''
     _list_of_src_files = []
     _threads_list = []
@@ -52,6 +53,13 @@ class SrcData:
                  output files
         """
         return self._perf_regex
+    
+    def get_use_only_last_value(self):
+        """
+        :return: 'True' if only the last value from the performance data should 
+                 be reported
+        """
+        return self._use_only_last_value
 
     def get_perf_label(self):
         """
@@ -150,6 +158,7 @@ class SrcData:
         self._recompile = data['test_setup']['recompile']
         self._exec_name = data['test_setup']['executable_name']
         self._perf_regex = data['test_setup']['perf_regex']
+        self._use_only_last_value = data['test_setup']['use_only_last_value']
         self._perf_label = data['test_setup']['perf_label']
         self._list_of_src_files = data['test_setup']['list_of_src_files']
         self._num_repetitions = data['test_setup']['num_repetitions']
