@@ -26,10 +26,10 @@ class MPIAnalysis(GenericAnalysis):
     # key - mca parameter
     # value - max possible value of the 'key' (starts from 0)
     _ompi_collectives = {
-        'coll_tuned_allreduce_algorithm': 6,
-        'coll_tuned_barrier_algorithm': 9,
-        'coll_tuned_bcast_algorithm': 6,
-        'coll_tuned_reduce_algorithm': 7,
+        'OMPI_MCA_coll_tuned_allreduce_algorithm': 6,
+        'OMPI_MCA_coll_tuned_barrier_algorithm': 9,
+        'OMPI_MCA_coll_tuned_bcast_algorithm': 6,
+        'OMPI_MCA_coll_tuned_reduce_algorithm': 7,
     }
 
     def get_impi_collectives(self):
@@ -105,14 +105,15 @@ class MPIAnalysis(GenericAnalysis):
 
                 # append and then pop a new envar to the list of already existing envars
                 default_launcher = self.get_batch_data().get_launcher()
-                if mpi_vendor == 'IMPI':
-                    self.get_batch_data().get_envars().append((col_type, value))
-                elif mpi_vendor == 'OpenMPI':
-                    # Force modify the default launcher if it was set to 'srun'
-                    if default_launcher == 'srun':
-                        default_launcher = 'mpirun'
-                    mod_launcher = default_launcher + ' --mca ' + col_type + ' ' + str(value) + ' '
-                    self.get_batch_data().set_launcher(mod_launcher)
+                # if mpi_vendor == 'IMPI':
+                #     self.get_batch_data().get_envars().append((col_type, value))
+                # elif mpi_vendor == 'OpenMPI':
+                #     # Force modify the default launcher if it was set to 'srun'
+                #     if default_launcher == 'srun':
+                #         default_launcher = 'mpirun'
+                #     mod_launcher = default_launcher + ' --mca ' + col_type + ' ' + str(value) + ' '
+                #     self.get_batch_data().set_launcher(mod_launcher)
+                self.get_batch_data().get_envars().append((col_type, value))
                 batch_file_name = self.get_batch_data().generate_job_script(self.get_src_data(), full_tmp_path,
                                                                             postfix)
                 if mpi_vendor == 'IMPI':
