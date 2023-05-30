@@ -167,6 +167,7 @@ class BatchFileData:
         self._launcher = data['batch_data']['launcher']
         self._nodes = data['batch_data']['nodes']
         self._ntasks = data['batch_data']['ntasks']
+        self._cpus = data['batch_data']['cpus']
         self._time = data['batch_data']['time']
         
         for envar in data['batch_data']['envars']:
