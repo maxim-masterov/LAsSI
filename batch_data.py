@@ -361,8 +361,8 @@ class BatchFileData:
         job_id = ''
         state = ''
         if self.is_asynchronous():
-            sbathc_call = 'sbatch --parsable ' + job_file_name
-            proc = subprocess.Popen(sbathc_call, stdout=subprocess.PIPE, shell=True)
+            sbatch_call = 'sbatch --parsable ' + job_file_name
+            proc = subprocess.Popen(sbatch_call, stdout=subprocess.PIPE, shell=True)
             (out, err) = proc.communicate()
             if out is None:
                 io_manager.print_err_info('Could not get the job ID. Returned value is \'None\'')
